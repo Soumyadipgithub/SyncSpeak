@@ -1,0 +1,125 @@
+name: CI
+
+# Runs on every PR targeting develop or main, and on direct pushes to those branches.
+# All 4 jobs must pass before a PR can be merged.
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+
+  # ── Job 1: Branch naming convention ──────────────────────────────────────────
+  # Only runs on PRs from developer feature/fix branches (not develop → main).
+  # Fails immediately with a clear message so the developer fixes it before
+  # a reviewer even looks at the PR.
+  branch-name:
+    name: Branch Name Check
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' &&
+      github.head_ref != 'develop'
+    steps:
+      - name: Validate branch naming convention
+        run: |
+          BRANCH="${{ github.head_ref }}"
+          echo "Checking branch: $BRANCH"
+
+          if echo "$BRANCH" | grep -qE '^(feat|fix|docs|refactor|chore|hotfix)(\/issue-[0-9]+)?\/[a-z0-9][a-z0-9-]*$'; then
+            echo "✅  '$BRANCH' follows the naming convention."
+          else
+            echo ""
+            echo "❌  '$BRANCH' does not follow the naming convention."
+            echo ""
+            echo "  Required format:  <type>/issue-<number>-<description>"
+            echo "  Alternative:      <type>/<description>"
+            echo ""
+            echo "  Valid types:  feat  fix  docs  refactor  chore  hotfix"
+            echo ""
+            echo "  Examples:"
+            echo "    feat/issue-12-add-hindi-punctuation"
+            echo "    fix/issue-7-tts-feedback-loop"
+            echo "    docs/update-pipeline-diagram"
+            echo "    refactor/vad-state-cleanup"
+            echo "    hotfix/stt-400-error"
+            echo ""
+            echo "  See CONTRIBUTING.md → Branch Naming for the full guide."
+            exit 1
+          fi
+
+  # ── Job 2: Python syntax check ───────────────────────────────────────────────
+  # Validates sidecar_main.py and translator.py parse without errors.
+  # Audio hardware is not required for a syntax check — ubuntu runner is fine.
+  python-check:
+    name: Python Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Syntax check — sidecar_main.py
+        run: python -m py_compile python/sidecar_main.py
+
+      - name: Syntax check — translator.py
+        run: python -m py_compile python/translator.py
+
+  # ── Job 3: Frontend type-check + build ───────────────────────────────────────
+  # TypeScript type check + Vite bundle build (frontend only, no Tauri shell).
+  # Catches broken types and broken imports before they reach a reviewer.
+  frontend:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+
+      - name: Vite build
+        run: npx vite build
+
+  # ── Job 4: Rust compile check ────────────────────────────────────────────────
+  # cargo check = full type + borrow check without producing a binary.
+  # ~10x faster than a full build; catches the same logic errors.
+  # Rust cache keeps crate downloads/compilation between runs (~3min → ~30s).
+  rust-check:
+    name: Rust Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux system deps (Tauri needs webkit2gtk headers)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            build-essential
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: cargo check
+        run: cargo check
+        working-directory: src-tauri
