@@ -11,7 +11,7 @@
 
 **Do not open a public GitHub issue for security vulnerabilities.**
 
-Email the maintainer directly at the address listed on the [GitHub profile](https://github.com/Soumyadipgithub). Include:
+Message the maintainer on Discord: [soumyadip_giri](https://discord.com/users/soumyadip_giri). Include:
 
 - A clear description of the vulnerability
 - Steps to reproduce
