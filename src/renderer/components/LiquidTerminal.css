@@ -1,0 +1,238 @@
+.liquid-terminal-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(40px) saturate(200%) contrast(105%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%) contrast(105%);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    inset 0 0 40px rgba(0, 0, 0, 0.5),
+    0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.terminal-header {
+  height: 36px;
+  min-height: 36px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.header-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #00c6ff;
+  letter-spacing: 0.15em;
+  font-family: 'Inter', 'Outfit', sans-serif;
+}
+
+.status-orb {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #333;
+}
+
+.status-orb.live {
+  background: #32d158;
+  box-shadow: 0 0 10px rgba(50, 209, 88, 0.8), 0 0 20px rgba(50, 209, 88, 0.4);
+}
+
+.header-status {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-family: 'Inter', sans-serif;
+}
+
+.terminal-body {
+  flex: 1;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.terminal-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Scrollbar styling */
+.terminal-scroll-area::-webkit-scrollbar {
+  width: 4px;
+}
+.terminal-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+.terminal-line {
+  display: flex;
+  align-items: center;
+  min-height: 22px;
+  gap: 12px;
+  padding: 0 6px;
+  border-radius: 4px;
+  animation: line-emerge 0.4s cubic-bezier(0.2, 1, 0.2, 1) forwards;
+  transition: background 0.2s ease;
+}
+
+/* Glass Strip Hover */
+.terminal-line:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+@keyframes line-emerge {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.line-prefix {
+  display: flex;
+  align-items: center;
+  min-width: 130px;
+}
+
+.icon-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon-wrapper.mic { color: #32d158; }
+.icon-wrapper.robot { color: #00c6ff; }
+.icon-wrapper.speaker { color: rgba(50, 209, 88, 0.4); }
+.icon-wrapper.system { color: #fbbf24; }
+
+.tag {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  font-family: 'Inter', sans-serif;
+}
+
+.line-content {
+  flex: 1;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.main-text {
+  color: #fff;
+  opacity: 0.95;
+}
+
+.heard .main-text {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.translated .main-text {
+  color: #ffffff;
+  font-weight: 500;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.sub-text {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 11px;
+}
+
+.line-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.line-timestamp {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.15);
+  font-family: monospace;
+}
+
+.copy-btn {
+  opacity: 0;
+  pointer-events: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  padding: 0 3px;
+  line-height: 1;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.copy-btn.copied {
+  color: #32d158;
+  opacity: 1;
+  pointer-events: none;
+}
+
+.terminal-line:hover .copy-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.copy-btn:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Empty State */
+.terminal-empty-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 22px;
+  padding-left: 6px;
+}
+
+.prompt {
+  color: #00c6ff;
+  font-family: monospace;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: #00c6ff;
+  border-radius: 50%;
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  from { opacity: 0.2; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1.1); }
+}
+
+.empty-text {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}

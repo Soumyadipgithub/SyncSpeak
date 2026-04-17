@@ -1,0 +1,174 @@
+:root {
+  /* HIG Semantic Scales (8px Grid) */
+  --space-xs: 4px;
+  --space-s: 8px;
+  --space-m: 16px;
+  --space-l: 24px;
+  --space-xl: 32px;
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 20px;
+  --radius-xl: 32px;
+
+  /* HIG Vibrancy Typography */
+  --vibrant-primary: #ffffff;
+  --vibrant-label: rgba(255, 255, 255, 0.65);
+  --vibrant-secondary: rgba(255, 255, 255, 0.45);
+  --vibrant-tertiary: rgba(255, 255, 255, 0.25);
+
+  /* DNA Color Palette (Neutral High-Contrast) */
+  --accent-blue: #0a84ff;
+  --orange: #ff9f0a;
+  --green: #30d158;
+  --red: #ff453a;
+
+  /* Refractive Material - Stained Glass DNA */
+  --liquid-blur: blur(20px) saturate(180%) brightness(1.2);
+  --glass-panel: rgba(15, 15, 20, 0.35);
+  --glass-bg: rgba(25, 25, 30, 0.25);
+  --glass-bg-hover: rgba(35, 35, 45, 0.35);
+  --border-glass: rgba(255, 255, 255, 0.12);
+  --border-blue: rgba(10, 132, 255, 0.3);
+  --internal-glow: rgba(10, 132, 255, 0.05);
+  --glass-blue: rgba(10, 132, 255, 0.05);
+
+  /* Liquid Glass Specular Tokens */
+  --liquid-specular: rgba(255, 255, 255, 0.85);
+  --liquid-edge: rgba(255, 255, 255, 0.15);
+  --liquid-shadow: rgba(0, 0, 0, 0.25);
+  --liquid-refraction: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0.15) 100%);
+
+  /* Controls */
+  --segmented-pill: #ffffff;
+  --segmented-bg: rgba(255, 255, 255, 0.1);
+  --liquid-morph: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+body {
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--vibrant-primary);
+  letter-spacing: -0.015em;
+  user-select: none;
+  -webkit-app-region: no-drag;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.app {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: transparent;
+  overflow: hidden;
+
+  /* Master Cut-Glass Boundary - CLEANED FOR PERFECTION */
+  box-shadow:
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.15); /* PURE LIGHT RIM */
+
+  /* Unified Liquid Surface */
+  backdrop-filter: var(--liquid-blur);
+  -webkit-backdrop-filter: var(--liquid-blur);
+}
+
+/* Master Liquid Glass Panel */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--liquid-blur);
+  -webkit-backdrop-filter: var(--liquid-blur);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.15); /* ATMOSPHERIC DEPTH */
+  transition: var(--liquid-morph);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Luminous Block UI */
+.gradient-btn {
+  position: relative;
+  background: linear-gradient(180deg, var(--green) 0%, #28b84d 100%);
+  color: #000;
+  border: none;
+  padding: 16px 48px;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: var(--liquid-morph);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3); /* BUTTON GLINT */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-glass);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vibrant-secondary);
+}
+
+/* Selection Island Utility */
+.selection-island {
+  background: var(--glass-panel);
+  backdrop-filter: var(--liquid-blur);
+  -webkit-backdrop-filter: var(--liquid-blur);
+  border: 0.5px solid var(--border-glass); /* UNIFIED LIGHT SURFACE - ZERO BLACK SHADOWS */
+  box-shadow: 
+     inset 0 1px 1px rgba(255, 255, 255, 0.15); /* Top Rim Light Only */
+}
+
+.hig-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--vibrant-label);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hig-body {
+  font-size: 13px;
+  color: var(--vibrant-primary);
+  line-height: 1.5;
+}
+
+.frosted-text {
+  opacity: 0.45;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}

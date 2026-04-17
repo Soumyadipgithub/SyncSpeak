@@ -1,0 +1,22 @@
+.page-container {
+  flex: 1;
+  overflow: hidden; /* ABSOLUTE CLIPPING */
+  padding: 0;
+  z-index: 1;
+  position: relative;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .logo:nth-of-type(2) {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

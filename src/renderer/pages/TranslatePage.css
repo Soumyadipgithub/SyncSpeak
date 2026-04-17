@@ -1,0 +1,770 @@
+.translate-page {
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: calc(100vh - 52px);
+  overflow: hidden;
+  --liquid-emerald: rgba(48, 209, 88, 0.15);
+  --liquid-border: rgba(255, 255, 255, 0.15);
+}
+
+/* --- THE MASTER ALTITUDE ENGINE (LAYER PHYSICS) --- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  position: relative;
+  z-index: 100;
+  /* HIGH ALTITUDE */
+}
+
+.config-panel {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(34px) saturate(320%) contrast(110%);
+  -webkit-backdrop-filter: blur(34px) saturate(320%) contrast(110%);
+  border-radius: 18px;
+  padding: 10px 16px;
+  border: 0.8px solid var(--liquid-border);
+  box-shadow:
+    inset 0 0.5px 1px rgba(255, 255, 255, 0.3),
+    0 10px 30px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: visible;
+  /* CRITICAL */
+  transform: translateZ(0);
+  /* GPU ACTIVE */
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 22px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hig-label {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.sub-label {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.label-row.compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* SYMMETRY PUSH */
+  padding-right: 4px;
+  /* ALIGN WITH SELECT EDGE */
+  margin-bottom: 2px;
+}
+
+/* --- THE CRYSTAL SELECT ENGINE --- */
+.glass-select-container {
+  position: relative;
+  width: 100%;
+}
+
+.glass-select-trigger {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  border: 0.8px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px 12px;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 12.5px;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 1, 0.2, 1);
+  box-shadow: inset 0 0.5px 0.5px rgba(255, 255, 255, 0.1);
+}
+
+.glass-select-trigger:hover,
+.glass-select-trigger.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* --- THE OFFICIAL APPLE LIQUID MENU DNA (HIGH-DENSITY OBSIDIAN) --- */
+.glass-select-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  width: 100%;
+  min-width: 300px;
+
+  /* MATERIAL: HIGH-DENSITY OBSIDIAN (ELIMINATES BACKGROUND CLUTTER) */
+  background: rgba(18, 18, 20, 0.92);
+  /* HEAVY SHIELD */
+  backdrop-filter: blur(80px) saturate(350%) brightness(0.85);
+  -webkit-backdrop-filter: blur(80px) saturate(350%) brightness(0.85);
+
+  border-radius: 22px;
+  border: 0.8px solid rgba(255, 255, 255, 0.12);
+  padding: 10px;
+
+  /* ELEVATION: SUPREME SHADOW DEPTH */
+  box-shadow:
+    0 40px 120px rgba(0, 0, 0, 0.9),
+    0 10px 40px rgba(0, 0, 0, 0.6),
+    inset 0 0.5px 1.5px rgba(255, 255, 255, 0.1);
+
+  z-index: 10000;
+  max-height: 280px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* MOTION: SPRING POP */
+  transform-origin: top center;
+  animation: liquid-spring-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* THE CRYSTAL SCROLLBAR ENGINE */
+.glass-select-dropdown::-webkit-scrollbar {
+  width: 4px;
+}
+
+.glass-select-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 10px 0;
+  /* Keeps scrollbar away from the curves */
+}
+
+.glass-select-dropdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-select-dropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes liquid-spring-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.glass-select-option {
+  padding: 12px 16px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13.5px;
+  font-weight: 500;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.2, 1, 0.2, 1);
+  position: relative;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.03);
+}
+
+.glass-select-option:last-child {
+  border-bottom: none;
+}
+
+.glass-select-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.glass-select-option.selected {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* --- THE LIQUID SIGNAL METER --- */
+.volume-meter-container {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 100px;
+  position: relative;
+  overflow: visible;
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+
+.volume-meter-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #32d158, #64d2ff);
+  border-radius: 100px;
+  transition: width 0.08s linear;
+  box-shadow: 0 0 10px rgba(50, 209, 88, 0.4);
+}
+
+.threshold-needle {
+  position: absolute;
+  top: -4px;
+  height: 16px;
+  width: 2px;
+  background: #ff3b30;
+  box-shadow: 0 0 10px rgba(255, 59, 48, 0.8);
+  border-radius: 1px;
+  z-index: 5;
+}
+
+/* --- HARDWARE CONTROL ORBS (REFRESH & ACTIONS) --- */
+.refresh-btn {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px) saturate(180%);
+  border: 0.8px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.2, 1, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.refresh-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: rotate(180deg) scale(1.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.refresh-btn:active {
+  transform: scale(0.9);
+  /* HAPTIC SQUISH */
+}
+
+.refresh-btn.loading {
+  animation: liquid-spin 1.2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes liquid-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- THE CRYSTAL SAMPLE PILL --- */
+.preview-mini-btn {
+  background: rgba(255, 255, 255, 0.08);
+  /* GLASS PILL */
+  backdrop-filter: blur(8px);
+  border: 0.8px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 3px 10px;
+  border-radius: 100px;
+  text-transform: uppercase;
+  font-size: 8.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 1, 0.2, 1);
+  margin-left: 8px;
+  /* POSITION FIX */
+  box-shadow: inset 0 0.5px 1px rgba(255, 255, 255, 0.1);
+}
+
+.preview-mini-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.preview-mini-btn:active {
+  transform: scale(0.92);
+  /* LIQUID SNAP */
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* --- THE MASTER LIQUID CONTROL BAR (Y-AXIS OPTIMIZED) --- */
+.dashboard-controls {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(40px) saturate(280%) brightness(1.1);
+  -webkit-backdrop-filter: blur(40px) saturate(280%) brightness(1.1);
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: 0.8px solid var(--liquid-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  position: relative;
+  z-index: 50;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.4),
+    inset 0 0.5px 1px rgba(255, 255, 255, 0.2);
+}
+
+.sensitivity-control {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* --- THE APPLE LIQUID GLASS SLIDER --- */
+.slider-wrapper input[type="range"] {
+  flex: 1;
+  appearance: none;
+  /* DYNAMIC LIQUID FILL ENGINE (BLUE) */
+  background: linear-gradient(to right,
+      #00c6ff 0%,
+      #0072ff var(--progress),
+      rgba(255, 255, 255, 0.08) var(--progress));
+  height: 4px;
+  /* PRO-GRADE THIN TRACK */
+  border-radius: 100px;
+  outline: none;
+  border: 0.5px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+}
+
+/* THE CRYSTAL THUMB ENGINE */
+.slider-wrapper input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 38px;
+  /* VOLUME PILL */
+  height: 18px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px) saturate(220%);
+  -webkit-backdrop-filter: blur(12px) saturate(220%);
+
+  /* CYAN DIFFRATION RIM (OFFICIAL APPLE LOOK) */
+  border: 1px solid rgba(0, 198, 255, 0.35);
+
+  border-radius: 100px;
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.6),
+    0 0 10px rgba(0, 198, 255, 0.1);
+
+  transition: all 0.3s cubic-bezier(0.2, 1, 0.2, 1);
+  cursor: grab;
+}
+
+.slider-wrapper input[type="range"]::-webkit-slider-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(0, 198, 255, 0.6);
+  transform: scale(1.1);
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(0, 198, 255, 0.3);
+}
+
+.slider-wrapper input[type="range"]::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+.vad-value {
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 100px;
+  min-width: 42px;
+  text-align: center;
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- THE REFRACTIVE CRYSTAL PILLAR (MASTER CONTROL) --- */
+.master-btn {
+  /* MATERIAL: GRADIENT FROM BLACKISH TO NORMAL GLASS */
+  background: linear-gradient(180deg,
+      rgba(30, 30, 35, 0.5) 0%,
+      rgba(0, 0, 0, 0.8) 100%);
+  backdrop-filter: blur(40px) saturate(280%) brightness(1.1);
+  -webkit-backdrop-filter: blur(40px) saturate(280%) brightness(1.1);
+
+  /* BORDER: OBSIDIAN HAIRLINE (BLACKISH DEFINITION) */
+  border: 1px solid rgba(0, 0, 0, 0.6);
+
+  width: 240px;
+  /* SYMMETRY LOCK */
+  height: 48px;
+  border-radius: 100px;
+  /* SLEEK PILL SHAPE */
+
+  color: #fff;
+  font-weight: 800;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.2, 1, 0.2, 1);
+
+  /* DEPTH: INTERNAL THICKNESS PHYSICS */
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.6),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    /* TOP EDGE GLINT */
+    inset 0 -1px 3px rgba(0, 0, 0, 0.3),
+    /* BOTTOM THICKNESS */
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+
+  position: relative;
+  overflow: hidden;
+}
+
+/* THE LIQUID SURFACE GRADIENT */
+.master-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.02) 100%);
+  pointer-events: none;
+}
+
+.master-btn:hover {
+  background: rgba(25, 25, 30, 0.6);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.8),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+.master-btn:active {
+  transform: scale(0.95) translateY(0);
+}
+
+/* THE INDICATOR DOT INDICATOR */
+.btn-icon {
+  font-size: 11px;
+  color: #32d158;
+  filter: drop-shadow(0 0 8px rgba(50, 209, 88, 0.6));
+}
+
+.master-btn.is-active {
+  background: linear-gradient(180deg,
+      rgba(20, 20, 25, 0.6) 0%,
+      rgba(255, 59, 48, 0.2) 100%);
+  /* BORDER REMAINS BLACKISH FOR MATTE DEFINITION */
+}
+
+.master-btn.is-active .btn-icon {
+  color: #ff3b30;
+  filter: drop-shadow(0 0 10px rgba(255, 59, 48, 0.8));
+  animation: liquid-pulse-dot 1s infinite alternate;
+}
+
+@keyframes liquid-pulse-dot {
+  from {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.btn-text {
+  opacity: 0.9;
+}
+
+.btn-icon {
+  font-size: 14px;
+}
+
+/* --- THE CRYSTAL LOG SYSTEM --- */
+.transcript-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 10px 5px;
+}
+
+.transcript-entry-glass {
+  position: relative;
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  padding: 16px;
+  animation: entry-emerge 0.6s var(--liquid-ease) forwards;
+  overflow: hidden;
+}
+
+@keyframes entry-emerge {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.entry-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lang-tag {
+  font-size: 9px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
+  margin-right: 12px;
+  letter-spacing: 0.5px;
+}
+
+.lang-tag.en {
+  color: #00c6ff;
+  background: rgba(0, 198, 255, 0.1);
+}
+
+.hindi-row-frosted {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  display: flex;
+  align-items: center;
+}
+
+.english-row-crystal {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  /* MAGNIFICATION EFFECT */
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.entry-timestamp {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.2);
+  font-weight: 500;
+}
+
+/* INDUSTRIAL OBSIDIAN DEFINITION FOR ENTRIES */
+.transcript-entry-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  border-radius: 18px;
+  pointer-events: none;
+}
+
+/* --- LIQUID STATUS BAR RE-INIT --- */
+.sidecar-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 100px;
+  width: fit-content;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #ff3b30;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.status-dot.pulse-live {
+  background: #32d158;
+  box-shadow: 0 0 10px rgba(50, 209, 88, 0.5);
+}
+
+.status-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+/* --- LIQUID PULSE ENGINE RE-INIT --- */
+.transcript-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.liquid-pulse-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.pulse-orb {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: liquid-pulse 4s infinite ease-in-out;
+}
+
+.glass-orb-1 {
+  width: 60px;
+  height: 60px;
+  animation-delay: 0s;
+}
+
+.glass-orb-2 {
+  width: 80px;
+  height: 80px;
+  animation-delay: 1s;
+  opacity: 0.6;
+}
+
+.glass-orb-3 {
+  width: 100px;
+  height: 100px;
+  animation-delay: 2s;
+  opacity: 0.3;
+}
+
+@keyframes liquid-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 0.1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+}
+
+.empty-visual-mic {
+  font-size: 40px;
+  z-index: 2;
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
+  opacity: 0.4;
+}
+
+.frosted-text {
+  opacity: 0.4;
+  font-weight: 300;
+}
+
+/* --- THE MEETING CONNECTION SHIELD --- */
+/* --- THE COMPACT ROUTING BADGE --- */
+.routing-badge {
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  animation: liquid-badge-appear 0.4s cubic-bezier(0.2, 1, 0.2, 1);
+  margin-right: 8px;
+}
+
+.routing-badge.alert {
+  color: #ffb340;
+  background: rgba(255, 179, 64, 0.1);
+  border: 0.5px solid rgba(255, 179, 64, 0.3);
+}
+
+.routing-badge.success {
+  color: #32d158;
+  background: rgba(50, 209, 88, 0.12);
+  border: 0.5px solid rgba(50, 209, 88, 0.4);
+}
+
+@keyframes liquid-badge-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateX(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+
+/* --- THE SIGNAL PEAKING ENGINE --- */
+.volume-meter-bar.is-peaking {
+  background: linear-gradient(90deg, #32d158, #ff3b30) !important;
+  box-shadow: 0 0 15px rgba(255, 59, 48, 0.4) !important;
+}

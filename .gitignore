@@ -1,0 +1,45 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+.continue/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Build artifacts
+*.exe
+*.spec
+build/
+dist/
+src-tauri/target/
+
+# Test & debug artifacts
+test_output.wav
+devices_list.txt
+syncspeak.log
+*.log
+
+# Dev / scratch files
+scratch/
+python/test_tts_output.txt
+
+# Env files — keys are managed via the Settings GUI, never via .env
+.env
+*.env
+**/.env

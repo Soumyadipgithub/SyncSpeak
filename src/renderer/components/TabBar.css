@@ -1,0 +1,57 @@
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-m) 0;
+  z-index: 100;
+}
+
+.tab-bar {
+  display: flex;
+  padding: 4px;
+  gap: 4px;
+  background: var(--glass-panel);
+  backdrop-filter: var(--liquid-blur);
+  -webkit-backdrop-filter: var(--liquid-blur);
+  border-radius: 20px;
+  border: 0.5px solid var(--border-glass);
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.tab-btn {
+  padding: 8px 18px;
+  border: none;
+  background: transparent;
+  color: var(--vibrant-label);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s var(--liquid-morph);
+  border-radius: 16px;
+  position: relative;
+  z-index: 2;
+  text-transform: uppercase;
+}
+
+.tab-btn:hover {
+  color: var(--vibrant-primary);
+}
+
+.tab-btn.active {
+  color: #000;
+}
+
+/* Sliding Selection Island */
+.tab-active-indicator {
+  position: absolute;
+  height: calc(100% - 8px);
+  top: 4px;
+  background: var(--segmented-pill);
+  border-radius: 16px;
+  transition: all 0.4s var(--liquid-morph);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}

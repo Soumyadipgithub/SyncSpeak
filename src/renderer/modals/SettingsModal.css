@@ -1,0 +1,393 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--glass-bg);
+  backdrop-filter: blur(50px) saturate(230%) contrast(110%);
+  -webkit-backdrop-filter: blur(50px) saturate(230%) contrast(110%);
+  border: 0.8px solid var(--border-glass);
+  border-radius: 32px;
+  width: 90%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 
+    0 40px 100px rgba(0, 0, 0, 0.7),
+    inset 0 0.5px 1px rgba(255, 255, 255, 0.2);
+  animation: liquidSpringUp 0.6s var(--spring-ease);
+}
+
+/* THE GHOST SCROLL ENGINE (ZERO VISUAL NOISE) */
+.modal-content::-webkit-scrollbar {
+  display: none; /* ELIMINATE THE VISUAL SCRATCH */
+}
+
+@keyframes liquidSpringUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border: 0.5px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.2, 1, 0.2, 1);
+  border-radius: 50%; /* GLASS ORB CONVERSION */
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.1) rotate(90deg);
+}
+
+.modal-body {
+  padding: 8px 24px 24px;
+}
+
+/* Sections */
+.settings-section {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+/* Slider Items */
+.setting-item {
+  margin-bottom: 18px;
+}
+
+.setting-item:last-child {
+  margin-bottom: 0;
+}
+
+.setting-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.setting-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+  min-width: 40px;
+  text-align: right;
+}
+
+.setting-slider {
+  width: 100%;
+  height: 4px; /* PRO-GRADE THICKNESS */
+  appearance: none;
+  /* DYNAMIC LIQUID FILL ENGINE (GREEN) */
+  background: linear-gradient(
+    to right, 
+    #32d158 0%, 
+    #32d158 var(--progress), 
+    rgba(255, 255, 255, 0.08) var(--progress)
+  );
+  border-radius: 100px;
+  outline: none;
+  cursor: pointer;
+}
+
+.setting-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 32px; /* VOLUME PILL */
+  height: 18px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px) saturate(220%);
+  -webkit-backdrop-filter: blur(12px) saturate(220%);
+  
+  /* CYAN DIFFRATION RIM (OFFICIAL APPLE LOOK) */
+  border: 1px solid rgba(0, 198, 255, 0.4);
+  
+  border-radius: 100px;
+  cursor: grab;
+  box-shadow: 
+    0 8px 18px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.6),
+    0 0 10px rgba(0, 198, 255, 0.15);
+  
+  transition: all 0.3s cubic-bezier(0.2, 1, 0.2, 1);
+}
+
+.setting-slider::-webkit-slider-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(0, 198, 255, 0.6);
+  transform: scale(1.1);
+  box-shadow: 
+    0 12px 25px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(0, 198, 255, 0.3);
+}
+
+.setting-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+.setting-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  opacity: 0.7;
+}
+
+/* Toggle Items */
+.setting-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.setting-toggle:last-child {
+  margin-bottom: 0;
+}
+
+.toggle-label {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.switch {
+  position: relative;
+  width: 48px;  /* INCREASED FOOTPRINT FOR VOLUMETRIC EFFECT */
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5); /* DEEP OBSIDIAN VOLCANIC TRACK */
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.2, 1, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* THE REFRACTIVE ORB ENGINE (CRYSTAL LENS) */
+.switch-slider::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  bottom: 3px;
+  width: 22px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.05); /* NEARLY TRANSPARENT GLASS */
+  backdrop-filter: blur(6px) saturate(180%);
+  -webkit-backdrop-filter: blur(6px) saturate(180%);
+  border-radius: 50%;
+  
+  /* CRYSTAL SHINE: TOP-DOWN GLINT */
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.7); /* THE TOP RIM LIGHT */
+    
+  transition: all 0.4s cubic-bezier(0.2, 1, 0.2, 1);
+  z-index: 2;
+}
+
+/* ACTIVE STATE: LIQUID GREEN FLOOD */
+.switch input:checked + .switch-slider {
+  background: #32d158;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    inset 0 2px 5px rgba(0, 0, 0, 0.2),
+    0 0 20px rgba(50, 209, 88, 0.25);
+}
+
+.switch input:checked + .switch-slider::before {
+  transform: translateX(20px);
+  background: rgba(255, 255, 255, 0.1); /* SLIGHTLY MORE VIBRANT WHEN ACTIVE */
+  border-color: rgba(255, 255, 255, 0.9); /* INTENSIFY RIM LIGHT */
+}
+
+/* HAPTIC EXPANSION ON HOVER */
+.switch:hover .switch-slider::before {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.08);
+}
+
+.switch input:checked:hover + .switch-slider::before {
+  transform: translateX(20px) scale(1.08);
+}
+
+/* About */
+.about-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.about-muted {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* API Key Settings Styling */
+.api-input-wrapper {
+  margin-top: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.settings-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: white;
+  font-family: inherit;
+  font-size: 13px;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  outline: none;
+}
+
+.settings-input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 15px rgba(10, 132, 255, 0.2);
+}
+
+.save-status {
+  font-size: 11px;
+  color: var(--accent-blue);
+  font-weight: 600;
+  animation: liquidPulse 1.5s infinite var(--liquid-morph);
+}
+
+.save-status.active {
+  color: var(--green);
+  animation: none;
+}
+
+.save-status.error {
+  color: var(--red);
+  animation: none;
+}
+
+.settings-input.input-error {
+  border-color: rgba(255, 69, 58, 0.5);
+  background: rgba(255, 69, 58, 0.05);
+}
+
+.setting-error-msg {
+  color: var(--red);
+  font-size: 11px;
+  margin-top: 8px;
+  font-weight: 500;
+  animation: liquidFloat 0.3s ease-out;
+}
+
+.settings-save-btn {
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0 16px;
+  height: 40px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+.settings-save-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.settings-save-btn.saved {
+  background: rgba(48, 209, 88, 0.2);
+  color: var(--green);
+  border: 1px solid rgba(48, 209, 88, 0.3);
+}
+
+.settings-save-btn.verifying {
+  opacity: 0.7;
+  cursor: wait;
+  animation: liquidPulse 1.5s infinite var(--liquid-morph);
+}
+
+.setting-hint a {
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+
+.setting-hint a:hover {
+  text-decoration: underline;
+}
+
+@keyframes liquidPulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.setting-description {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  line-height: 1.5;
+  opacity: 0.8;
+}

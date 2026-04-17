@@ -1,0 +1,147 @@
+@keyframes gradient-shift {
+  0% {
+    background: conic-gradient(
+      from 0deg,
+      rgba(7, 7, 26, 0.08),
+      rgba(26, 42, 94, 0.08),
+      rgba(14, 63, 94, 0.08),
+      rgba(7, 7, 26, 0.08)
+    );
+  }
+  25% {
+    background: conic-gradient(
+      from 90deg,
+      rgba(26, 42, 94, 0.08),
+      rgba(14, 63, 94, 0.08),
+      rgba(46, 26, 78, 0.08),
+      rgba(26, 42, 94, 0.08)
+    );
+  }
+  50% {
+    background: conic-gradient(
+      from 180deg,
+      rgba(14, 63, 94, 0.08),
+      rgba(46, 26, 78, 0.08),
+      rgba(26, 10, 58, 0.08),
+      rgba(14, 63, 94, 0.08)
+    );
+  }
+  75% {
+    background: conic-gradient(
+      from 270deg,
+      rgba(46, 26, 78, 0.08),
+      rgba(26, 10, 58, 0.08),
+      rgba(26, 42, 94, 0.08),
+      rgba(46, 26, 78, 0.08)
+    );
+  }
+  100% {
+    background: conic-gradient(
+      from 360deg,
+      rgba(7, 7, 26, 0.08),
+      rgba(26, 42, 94, 0.08),
+      rgba(14, 63, 94, 0.08),
+      rgba(7, 7, 26, 0.08)
+    );
+  }
+}
+
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(16, 217, 160, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(16, 217, 160, 0.6);
+  }
+}
+
+.animated-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: transparent;
+  pointer-events: none;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  mix-blend-mode: screen;
+  animation: blob-float 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.blob-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--orange) 0%, transparent 70%);
+  top: -100px;
+  right: -100px;
+  animation-duration: 25s;
+}
+
+.blob-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--accent-blue) 0%, transparent 70%);
+  bottom: -150px;
+  left: -50px;
+  animation-duration: 30s;
+  animation-delay: -5s;
+}
+
+.blob-3 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #7000ff 0%, transparent 70%);
+  top: 20%;
+  left: -100px;
+  animation-duration: 35s;
+  animation-delay: -10s;
+}
+
+.blob-4 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, var(--green) 0%, transparent 70%);
+  bottom: 10%;
+  right: 15%;
+  animation-duration: 20s;
+  animation-delay: -2s;
+}
+
+@keyframes blob-float {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  33% { transform: translate(100px, 50px) scale(1.1) rotate(10deg); }
+  66% { transform: translate(-50px, 100px) scale(0.9) rotate(-10deg); }
+  100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+}
+
+.page-container {
+  flex: 1;
+  overflow-y: auto;
+  z-index: 1;
+  animation: fade-in 0.5s ease-out;
+}

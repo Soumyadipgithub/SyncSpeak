@@ -1,0 +1,21 @@
+# SyncSpeak — Python dependencies
+# Install: pip install -r requirements.txt
+# Then:    pip install webrtcvad-wheels  (Windows pre-built wheel, required separately)
+
+# Audio I/O
+sounddevice>=0.4.6
+numpy>=1.24.0
+
+# Sarvam AI — STT (Saarika v2.5) and TTS (Bulbul v3)
+requests>=2.31.0
+
+# Groq — Translation (Llama 3.3 70B)
+groq>=0.9.0
+
+# Sarvam AI Python SDK (retained for legacy test_pipeline.py compatibility)
+sarvamai>=0.1.0
+
+# Voice Activity Detection — install separately on Windows:
+#   pip install webrtcvad-wheels
+# (The source package 'webrtcvad' requires a C compiler on Windows;
+#  webrtcvad-wheels provides a pre-built binary wheel.)

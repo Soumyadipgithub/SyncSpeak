@@ -1,0 +1,30 @@
+{
+  "name": "syncspeak",
+  "version": "2.0.0",
+  "description": "Real-time Hindi to English voice translator for meetings",
+  "main": "out/main/index.js",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "vite build && tauri build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fluentui/react-components": "^9.x",
+    "@fluentui/react-icons": "^2.x",
+    "@tauri-apps/api": "^2.10.1",
+    "@tauri-apps/plugin-shell": "^2.3.5",
+    "framer-motion": "^12.x",
+    "react": "^19.x",
+    "react-dom": "^19.x",
+    "zustand": "^5.x"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.10.1",
+    "@types/node": "^20.x",
+    "@types/react": "^19.x",
+    "@types/react-dom": "^19.x",
+    "@vitejs/plugin-react": "^4.x",
+    "typescript": "^5.x",
+    "vite": "^6.x"
+  }
+}

@@ -1,0 +1,217 @@
+.titlebar {
+  height: 52px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-l);
+  gap: var(--space-m);
+  -webkit-app-region: drag;
+  z-index: 1000;
+}
+
+.titlebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  cursor: default;
+}
+
+/* --- THE APPLE LIQUID GLASS MATERIAL CONTAINER --- */
+.glass-title-svg {
+  overflow: visible;
+  backdrop-filter: blur(25px) saturate(300%) contrast(115%);
+  -webkit-backdrop-filter: blur(25px) saturate(300%) contrast(115%);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.45));
+  mask-image: linear-gradient(to right, white, white);
+  /* Forces GPU layer */
+}
+
+.titlebar-logo {
+  height: 24px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+/* --- THE OFFICIAL APPLE SEGMENTED CONTROL --- */
+.titlebar-nav {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  -webkit-app-region: no-drag;
+}
+
+.tab-bar {
+  display: flex;
+  padding: 3px;
+  background: rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 14px;
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  min-width: 320px;
+}
+
+.tab-btn {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: 'SF Pro Display', 'Inter', -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  border-radius: 11px;
+  position: relative;
+  z-index: 2;
+}
+
+.tab-btn.active {
+  color: #000000 !important;
+  transition: color 0.15s ease;
+}
+
+/* --- THE ULTIMATE LIQUID LENS ENGINE --- */
+.tab-active-indicator {
+  position: absolute;
+  height: calc(100% - 6px);
+  top: 3px;
+
+  /* LENS MATERIAL: 12% Opacity + Crystal Polish */
+  background: rgba(255, 255, 255, 0.12);
+
+  /* THE MAGNIFICATION & DISTORTION STACK */
+  backdrop-filter:
+    blur(12px) saturate(250%) brightness(1.1) url(#liquid-lens-refraction);
+
+  -webkit-backdrop-filter: blur(12px) saturate(250%) brightness(1.1);
+
+  border-radius: 11px;
+
+  /* VOLUMETRIC SHADOWS */
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    0 1px 4px rgba(0, 0, 0, 0.1),
+    inset 0 0.5px 1px rgba(255, 255, 255, 0.82);
+  /* SHARP TOP RIM */
+
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  z-index: 1;
+  transition:
+    left 0.45s cubic-bezier(0.2, 1, 0.2, 1),
+    width 0.45s cubic-bezier(0.2, 1, 0.2, 1);
+
+  will-change: left, transform, width;
+  overflow: hidden;
+}
+
+/* SURFACE SPECULAR (THE WINDOW LIGHT REFLECTION) */
+.glass-specular-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(115deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.15) 30%,
+      rgba(255, 255, 255, 0.35) 45%,
+      rgba(255, 255, 255, 0.15) 60%,
+      transparent 100%);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* THE LIQUID STRETCH (Moving Right) */
+.tab-active-indicator.morph-right {
+  animation: liquid-stretch-right 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* THE LIQUID STRETCH (Moving Left) */
+.tab-active-indicator.morph-left {
+  animation: liquid-stretch-left 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes liquid-stretch-right {
+  0% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  35% {
+    transform: scaleX(1.18);
+    transform-origin: left;
+  }
+
+  100% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+@keyframes liquid-stretch-left {
+  0% {
+    transform: scaleX(1);
+    transform-origin: right;
+  }
+
+  35% {
+    transform: scaleX(1.18);
+    transform-origin: right;
+  }
+
+  100% {
+    transform: scaleX(1);
+    transform-origin: right;
+  }
+}
+
+/* --- TITLEBAR CONTROLS --- */
+.titlebar-controls {
+  display: flex;
+  gap: 14px;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  border-radius: 50%;
+  backdrop-filter: blur(14px) saturate(250%) contrast(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(250%) contrast(120%);
+  box-shadow:
+    inset 0 0.8px 1px rgba(255, 255, 255, 0.4),
+    inset 0 -1.5px 3px rgba(0, 0, 0, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.25);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+
+.titlebar-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.12) translateY(-1px);
+}
+
+.titlebar-btn.close {
+  background: rgba(255, 45, 85, 0.25);
+  color: #ffffff;
+  border: 0.5px solid rgba(255, 45, 85, 0.3);
+}
+
+.titlebar-btn.close:hover {
+  background: rgba(255, 45, 85, 0.45);
+  box-shadow:
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.6),
+    0 0 20px rgba(255, 45, 85, 0.4);
+}
