@@ -129,3 +129,26 @@ jobs:
       - name: cargo check
         run: cargo check
         working-directory: src-tauri
+
+  # ── Job 5: Website build ─────────────────────────────────────────────────────
+  # Builds the Astro marketing site in /website. Fails fast if a page breaks.
+  # Skipped on PRs that don't touch /website to keep CI snappy.
+  website-build:
+    name: Website Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install website dependencies
+        run: npm ci
+        working-directory: website
+
+      - name: Astro build
+        run: npm run build
+        working-directory: website

@@ -95,6 +95,7 @@ SyncSpeak/
 │   ├── pages/             # TranslatePage, HistoryPage, VoicesPage
 │   └── components/        # TitleBar, TabBar, LiquidTerminal
 ├── src-tauri/             # Rust / Tauri v2 shell
+├── website/               # Marketing site (Astro) — syncspeak.pages.dev
 └── docs/                  # Technical documentation
 ```
 
@@ -147,6 +148,15 @@ Quick version:
 4. Do not swap out AI providers without discussion
 
 To report a security vulnerability, see [SECURITY.md](SECURITY.md).
+
+---
+
+## Website
+
+The marketing site lives in [`website/`](website/) and is built with Astro.
+It deploys to [syncspeak.pages.dev](https://syncspeak.pages.dev) (Cloudflare
+Pages) on every push to `main`. See [`website/README.md`](website/README.md)
+for local-dev commands.
 
 ---
 
