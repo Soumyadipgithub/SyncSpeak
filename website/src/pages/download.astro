@@ -1,0 +1,203 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+
+const title = 'Download SyncSpeak';
+const description =
+  'Download the latest SyncSpeak build for Windows, macOS, or Linux. Free, open-source, no account required.';
+
+type Asset = { name: string; size: number; browser_download_url: string };
+type Release = {
+  tag_name: string;
+  name: string;
+  html_url: string;
+  published_at: string;
+  body: string;
+  assets: Asset[];
+};
+
+let release: Release | null = null;
+try {
+  const res = await fetch(
+    'https://api.github.com/repos/Soumyadipgithub/SyncSpeak/releases/latest',
+    { headers: { Accept: 'application/vnd.github+json' } }
+  );
+  if (res.ok) release = (await res.json()) as Release;
+} catch {
+  release = null;
+}
+
+const fmt = (bytes: number) => {
+  if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${bytes} B`;
+};
+
+const platformOf = (name: string) => {
+  if (/\.(exe|msi)$/i.test(name)) return { label: 'Windows', icon: '🪟' };
+  if (/\.(dmg|pkg)$/i.test(name)) return { label: 'macOS', icon: '' };
+  if (/\.AppImage$/i.test(name)) return { label: 'Linux (AppImage)', icon: '🐧' };
+  if (/\.deb$/i.test(name)) return { label: 'Linux (Debian)', icon: '🐧' };
+  if (/\.rpm$/i.test(name)) return { label: 'Linux (RPM)', icon: '🐧' };
+  return { label: 'Other', icon: '📦' };
+};
+
+const published = release ? new Date(release.published_at).toLocaleDateString() : null;
+---
+
+<BaseLayout title={title} description={description}>
+  <article class="wrap container section">
+    <header class="page-head">
+      <span class="hig-label">Download</span>
+      <h1>Get SyncSpeak.</h1>
+      <p class="lede">
+        Free forever. Open-source. Your microphone stays on your machine.
+      </p>
+      <div class="primary-cta">
+        <DownloadButton label="Download for" />
+      </div>
+      {
+        release && (
+          <p class="release-meta">
+            Latest: <code>{release.tag_name}</code> · released {published}
+          </p>
+        )
+      }
+    </header>
+
+    <section class="all-assets" aria-label="All available builds">
+      <h2>All builds</h2>
+      {
+        release ? (
+          <ul class="assets" role="list">
+            {release.assets.map((a) => {
+              const p = platformOf(a.name);
+              return (
+                <li class="glass-card asset">
+                  <span class="asset-icon" aria-hidden="true">{p.icon}</span>
+                  <div class="asset-meta">
+                    <span class="asset-platform">{p.label}</span>
+                    <code class="asset-name">{a.name}</code>
+                  </div>
+                  <span class="asset-size">{fmt(a.size)}</span>
+                  <a href={a.browser_download_url} class="ghost-btn asset-dl">
+                    Download
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <div class="glass-card empty">
+            <p>
+              No releases published yet. Track the first release on
+              <a href="https://github.com/Soumyadipgithub/SyncSpeak/releases" target="_blank" rel="noopener">GitHub</a>.
+            </p>
+          </div>
+        )
+      }
+    </section>
+
+    <section class="req glass-card">
+      <h2>System requirements</h2>
+      <dl>
+        <dt>Windows</dt>
+        <dd>Windows 10 1809+, VB-Cable installed, ~120 MB disk</dd>
+        <dt>macOS</dt>
+        <dd>macOS 12 Monterey+, microphone permission, ~140 MB disk</dd>
+        <dt>Linux</dt>
+        <dd>glibc 2.31+, webkit2gtk-4.1, PulseAudio or PipeWire</dd>
+        <dt>API keys</dt>
+        <dd>
+          Free <a href="https://sarvam.ai" target="_blank" rel="noopener">Sarvam AI</a>
+          and <a href="https://groq.com" target="_blank" rel="noopener">Groq</a> keys.
+          Entered once in Settings, stored locally.
+        </dd>
+      </dl>
+    </section>
+
+    <section class="alt">
+      <h2>Build from source</h2>
+      <p>
+        Want to verify the binary or contribute? Clone the repo and run
+        <code>npm run build</code>. Full setup in the
+        <a href="/docs">docs</a>.
+      </p>
+      <pre><code>git clone https://github.com/Soumyadipgithub/SyncSpeak.git
+cd SyncSpeak
+npm install
+npm run dev</code></pre>
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 900px; }
+  .page-head { text-align: center; margin-bottom: var(--space-3xl); }
+  .page-head h1 { margin: var(--space-m) 0 var(--space-l); }
+  .lede { font-size: 1.125rem; color: var(--vibrant-label); }
+  .primary-cta {
+    margin: var(--space-xl) 0 var(--space-m);
+    display: flex;
+    justify-content: center;
+  }
+  .release-meta { font-size: 0.875rem; color: var(--vibrant-secondary); }
+
+  .all-assets { margin-bottom: var(--space-2xl); }
+  .all-assets h2 { margin-bottom: var(--space-l); }
+  .assets {
+    list-style: none;
+    display: grid;
+    gap: var(--space-s);
+  }
+  .asset {
+    display: grid;
+    grid-template-columns: 40px 1fr auto auto;
+    gap: var(--space-m);
+    align-items: center;
+    padding: var(--space-m) var(--space-l);
+  }
+  .asset-icon { font-size: 1.5rem; }
+  .asset-platform { font-weight: 600; display: block; }
+  .asset-name { font-size: 0.8125rem; color: var(--vibrant-secondary); }
+  .asset-size {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--vibrant-secondary);
+  }
+  .asset-dl { padding: var(--space-s) var(--space-m); font-size: 0.875rem; }
+
+  .empty { padding: var(--space-xl); text-align: center; }
+
+  .req {
+    padding: var(--space-xl);
+    margin-bottom: var(--space-2xl);
+  }
+  .req h2 { margin-bottom: var(--space-m); }
+  .req dl {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: var(--space-s) var(--space-l);
+  }
+  .req dt { font-weight: 600; color: var(--vibrant-primary); }
+  .req dd { color: var(--vibrant-label); }
+
+  .alt h2 { margin-bottom: var(--space-m); }
+  .alt pre {
+    margin-top: var(--space-m);
+    padding: var(--space-l);
+    background: var(--glass-panel);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-m);
+    overflow-x: auto;
+    font-size: 0.875rem;
+  }
+  .alt code { background: none; padding: 0; }
+
+  @media (max-width: 640px) {
+    .asset { grid-template-columns: 40px 1fr; row-gap: var(--space-xs); }
+    .asset-size, .asset-dl { grid-column: 2; }
+    .req dl { grid-template-columns: 1fr; gap: var(--space-xs); }
+    .req dd { margin-bottom: var(--space-s); }
+  }
+</style>

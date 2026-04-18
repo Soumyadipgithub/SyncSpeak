@@ -1,0 +1,116 @@
+---
+const path = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === '/' ? path === '/' : path.startsWith(href);
+
+const links = [
+  { href: '/features', label: 'Features' },
+  { href: '/how-it-works', label: 'How it works' },
+  { href: '/developers', label: 'Developers' },
+  { href: '/docs', label: 'Docs' },
+  { href: '/faq', label: 'FAQ' },
+];
+---
+
+<header class="nav-wrap">
+  <nav class="nav glass-card" aria-label="Primary">
+    <a href="/" class="brand" aria-label="SyncSpeak home">
+      <span class="logo-dot" aria-hidden="true"></span>
+      <span class="brand-text">SyncSpeak</span>
+    </a>
+
+    <ul class="links" role="list">
+      {
+        links.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class:list={['link', { active: isActive(link.href) }]}
+              aria-current={isActive(link.href) ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <a href="/download" class="nav-cta gradient-btn">Download</a>
+  </nav>
+</header>
+
+<style>
+  .nav-wrap {
+    position: sticky;
+    top: var(--space-m);
+    z-index: 50;
+    padding: 0 var(--space-l);
+    margin-top: var(--space-m);
+  }
+
+  .nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-s) var(--space-m) var(--space-s) var(--space-l);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-l);
+    border-radius: var(--radius-pill);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-s);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .brand:hover { color: var(--vibrant-primary); }
+
+  .logo-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-blue), var(--green));
+    box-shadow: 0 0 12px var(--accent-blue);
+  }
+
+  .brand-text { font-size: 1.0625rem; }
+
+  .links {
+    display: flex;
+    gap: var(--space-xs);
+    list-style: none;
+  }
+
+  .link {
+    display: inline-block;
+    padding: var(--space-s) var(--space-m);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--vibrant-label);
+    border-radius: var(--radius-pill);
+    transition: var(--liquid-morph);
+  }
+
+  .link:hover {
+    color: var(--vibrant-primary);
+    background: var(--glass-bg);
+  }
+
+  .link.active {
+    color: var(--vibrant-primary);
+    background: var(--segmented-bg);
+  }
+
+  .nav-cta {
+    padding: var(--space-s) var(--space-l);
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 820px) {
+    .links { display: none; }
+    .nav { padding: var(--space-s) var(--space-m); }
+  }
+</style>

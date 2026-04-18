@@ -1,0 +1,172 @@
+---
+const exchanges = [
+  { hi: 'Aaj ka revenue target kya hai?', en: 'What is today’s revenue target?' },
+  { hi: 'Presentation shuru karte hain.', en: 'Let’s start the presentation.' },
+  { hi: 'Client ko update bhej do.', en: 'Send the client an update.' },
+  { hi: 'Deployment kal ho jayega.', en: 'Deployment will be done by tomorrow.' },
+];
+---
+
+<div class="terminal glass-card" role="img" aria-label="Live translation preview">
+  <header class="tbar">
+    <span class="dot red" aria-hidden="true"></span>
+    <span class="dot amber" aria-hidden="true"></span>
+    <span class="dot green" aria-hidden="true"></span>
+    <span class="tbar-title">SyncSpeak · live</span>
+    <span class="pill" data-stage="listen">Listening</span>
+  </header>
+
+  <div class="row" data-row="hi">
+    <span class="row-label">HI</span>
+    <span class="row-text" data-hi>{exchanges[0].hi}</span>
+  </div>
+  <div class="row" data-row="en">
+    <span class="row-label en">EN</span>
+    <span class="row-text" data-en>{exchanges[0].en}</span>
+  </div>
+
+  <footer class="meter" aria-hidden="true">
+    {Array.from({ length: 24 }).map((_, b) => (
+      <span class="bar" style={`animation-delay:${(b % 6) * 0.08}s`}></span>
+    ))}
+  </footer>
+
+  <script is:inline define:vars={{ exchanges }}>
+    (() => {
+      const term = document.currentScript.previousElementSibling?.parentElement;
+      if (!term) return;
+      const hiEl = term.querySelector('[data-hi]');
+      const enEl = term.querySelector('[data-en]');
+      const hiRow = term.querySelector('[data-row="hi"]');
+      const enRow = term.querySelector('[data-row="en"]');
+      const pill = term.querySelector('.pill');
+      if (!hiEl || !enEl || !hiRow || !enRow || !pill) return;
+
+      const STAGES = {
+        listen: { label: 'Listening', hi: true, en: false },
+        translate: { label: 'Translating', hi: true, en: false },
+        speak: { label: 'Speaking', hi: false, en: true },
+      };
+
+      let i = 0;
+      const setStage = (s) => {
+        pill.dataset.stage = s;
+        pill.textContent = STAGES[s].label;
+        hiRow.dataset.active = STAGES[s].hi ? 'true' : 'false';
+        enRow.dataset.active = STAGES[s].en ? 'true' : 'false';
+      };
+
+      const cycle = () => {
+        const ex = exchanges[i];
+        hiEl.textContent = ex.hi;
+        enEl.textContent = ex.en;
+        setStage('listen');
+        setTimeout(() => setStage('translate'), 900);
+        setTimeout(() => setStage('speak'), 1800);
+        setTimeout(() => { i = (i + 1) % exchanges.length; cycle(); }, 3600);
+      };
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setStage('speak');
+        return;
+      }
+      cycle();
+    })();
+  </script>
+</div>
+
+<style>
+  .terminal {
+    padding: 20px;
+    width: 100%;
+    max-width: 520px;
+    display: grid;
+    gap: 14px;
+    font-family: var(--font-mono);
+  }
+  .tbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-glass);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .red { background: var(--red); }
+  .amber { background: var(--orange); }
+  .green { background: var(--green); }
+  .tbar-title {
+    margin-left: 8px;
+    font-size: 12px;
+    color: var(--vibrant-secondary);
+    letter-spacing: 0.02em;
+  }
+  .pill {
+    margin-left: auto;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: var(--glass-panel);
+    border: 1px solid var(--border-glass);
+    color: var(--vibrant-label);
+    transition: var(--liquid-morph);
+  }
+  .pill[data-stage='listen'] { color: var(--accent-blue); border-color: var(--border-blue); }
+  .pill[data-stage='translate'] { color: var(--orange); }
+  .pill[data-stage='speak'] { color: var(--green); }
+
+  .row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius-m);
+    background: transparent;
+    border: 1px solid transparent;
+    transition: var(--liquid-morph);
+    min-height: 44px;
+  }
+  .row[data-active='true'] {
+    background: var(--glass-panel);
+    border-color: var(--border-glass);
+  }
+  .row-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--vibrant-secondary);
+    letter-spacing: 0.08em;
+    padding-top: 2px;
+  }
+  .row-label.en { color: var(--green); }
+  .row-text {
+    font-size: 14px;
+    color: var(--vibrant-primary);
+    line-height: 1.5;
+  }
+
+  .meter {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 28px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-glass);
+  }
+  .bar {
+    flex: 1;
+    background: linear-gradient(180deg, var(--accent-blue), transparent);
+    border-radius: 2px;
+    animation: pulse-bar 1.2s ease-in-out infinite;
+    transform-origin: bottom;
+  }
+  @keyframes pulse-bar {
+    0%, 100% { transform: scaleY(0.2); opacity: 0.4; }
+    50% { transform: scaleY(1); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bar { animation: none; transform: scaleY(0.5); }
+  }
+</style>

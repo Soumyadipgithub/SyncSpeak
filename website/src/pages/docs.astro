@@ -1,0 +1,132 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Docs — SyncSpeak';
+const description =
+  'SyncSpeak technical documentation: architecture, audio pipeline, Sarvam and Groq API reference, setup guide, and the Liquid Glass design system.';
+
+const docs = [
+  {
+    slug: 'architecture',
+    title: 'Architecture',
+    summary:
+      'Three-tier design (Rust shell, React UI, Python sidecar), full IPC command/event reference, and the complete file map.',
+  },
+  {
+    slug: 'pipeline',
+    title: 'Audio pipeline',
+    summary:
+      'Deep dive into the VAD → STT → LLM → TTS flow. Frame sizes, pre-buffer, latency budget, self-talk prevention, Hinglish corrections.',
+  },
+  {
+    slug: 'api-reference',
+    title: 'API reference',
+    summary:
+      'Sarvam AI and Groq endpoints, models, parameters, rate limits, and error modes.',
+  },
+  {
+    slug: 'setup',
+    title: 'Setup guide',
+    summary:
+      'Installation, first-run configuration, VB-Cable setup, API-key entry, and common troubleshooting.',
+  },
+  {
+    slug: 'design-system',
+    title: 'Design system',
+    summary:
+      'Liquid Glass CSS tokens, component rules, transparency model, and what "never solid backgrounds" actually means in practice.',
+  },
+];
+
+const repoDocsBase =
+  'https://github.com/Soumyadipgithub/SyncSpeak/blob/main/docs';
+---
+
+<BaseLayout title={title} description={description}>
+  <article class="wrap container section">
+    <header class="page-head">
+      <span class="hig-label">Documentation</span>
+      <h1>Read the code, read the docs.</h1>
+      <p class="lede">
+        Technical documentation lives alongside the source in
+        <code>/docs</code>. Each section below links to the canonical Markdown version
+        on GitHub. Full in-site MDX rendering with syntax highlighting is tracked as a
+        follow-up.
+      </p>
+    </header>
+
+    <ul class="doc-list" role="list">
+      {
+        docs.map((d) => (
+          <li>
+            <a
+              href={`${repoDocsBase}/${d.slug}.md`}
+              class="glass-card doc-card"
+              target="_blank"
+              rel="noopener"
+            >
+              <div>
+                <h2>{d.title}</h2>
+                <p>{d.summary}</p>
+              </div>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <aside class="glass-card help">
+      <h2>Something missing?</h2>
+      <p>
+        If a workflow isn't documented, that's a bug. Open an issue and label it
+        <code>docs</code> — we prioritise doc gaps.
+      </p>
+      <a
+        href="https://github.com/Soumyadipgithub/SyncSpeak/issues/new?template=bug_report.md&labels=docs"
+        class="ghost-btn"
+        target="_blank"
+        rel="noopener"
+      >
+        Report a docs gap →
+      </a>
+    </aside>
+  </article>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 900px; }
+  .page-head { text-align: center; margin-bottom: var(--space-2xl); }
+  .page-head h1 { margin: var(--space-m) 0 var(--space-l); }
+  .lede {
+    max-width: 60ch;
+    margin: 0 auto;
+    font-size: 1.125rem;
+    color: var(--vibrant-label);
+  }
+
+  .doc-list {
+    list-style: none;
+    display: grid;
+    gap: var(--space-m);
+    margin-bottom: var(--space-2xl);
+  }
+  .doc-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-l);
+    padding: var(--space-xl);
+  }
+  .doc-card:hover { color: var(--vibrant-primary); }
+  .doc-card h2 {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-xs);
+  }
+  .doc-card p { color: var(--vibrant-label); }
+  .arrow { font-size: 1.5rem; color: var(--accent-blue); }
+
+  .help { padding: var(--space-xl); text-align: center; }
+  .help h2 { margin-bottom: var(--space-s); }
+  .help p { margin-bottom: var(--space-l); }
+</style>

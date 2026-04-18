@@ -1,0 +1,114 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Privacy — SyncSpeak';
+const description =
+  'SyncSpeak has no servers. We do not collect, store, or transmit your audio or your API keys. Everything runs locally on your machine.';
+---
+
+<BaseLayout title={title} description={description}>
+  <article class="wrap container section">
+    <header class="page-head">
+      <span class="hig-label">Privacy</span>
+      <h1>We don’t have your data.</h1>
+      <p class="lede">
+        SyncSpeak has no servers, no accounts, and no telemetry. There is nowhere for
+        your data to go because there is nothing between you and the providers you
+        choose. This page is the full policy.
+      </p>
+    </header>
+
+    <section class="prose">
+      <h2>What SyncSpeak does</h2>
+      <p>
+        SyncSpeak is a desktop application. It captures audio from your local microphone,
+        sends that audio directly from your computer to the API providers you configure
+        (Sarvam AI for speech-to-text and text-to-speech, Groq for translation), plays the
+        result back through a local virtual audio cable, and writes a local history log.
+        That is all.
+      </p>
+
+      <h2>What leaves your machine</h2>
+      <ul>
+        <li>
+          Audio snippets of your Hindi speech are sent to <strong>Sarvam AI</strong> for
+          transcription and synthesis. Their policy:
+          <a href="https://sarvam.ai/privacy" target="_blank" rel="noopener">
+            sarvam.ai/privacy
+          </a>.
+        </li>
+        <li>
+          Transcribed text is sent to <strong>Groq</strong> for translation. Their policy:
+          <a href="https://groq.com/privacy-policy/" target="_blank" rel="noopener">
+            groq.com/privacy-policy
+          </a>.
+        </li>
+        <li>
+          Nothing goes to SyncSpeak — we operate no backend service.
+        </li>
+      </ul>
+
+      <h2>What stays on your machine</h2>
+      <ul>
+        <li>
+          <strong>Your API keys</strong>, stored in
+          <code>%APPDATA%\com.syncspeak.app\config.json</code> on Windows (equivalent
+          paths on macOS and Linux). Plaintext, local file only. Acknowledged limitation —
+          see SECURITY.md. Tracked as a follow-up to encrypt.
+        </li>
+        <li>
+          <strong>Your translation history</strong>, saved locally for scrollback.
+          Clearable at any time.
+        </li>
+        <li>
+          <strong>Your voice and TTS preferences</strong>, stored in the same config file.
+        </li>
+      </ul>
+
+      <h2>What SyncSpeak does not do</h2>
+      <ul>
+        <li>No analytics. No Google Analytics, no Plausible, nothing.</li>
+        <li>No crash reporting to any server.</li>
+        <li>No automatic update telemetry.</li>
+        <li>No account creation, no sign-in.</li>
+        <li>No tracking pixels on this website. (The site uses Cloudflare Pages, which sees standard HTTP request logs — same as any host.)</li>
+      </ul>
+
+      <h2>Security reports</h2>
+      <p>
+        If you find a vulnerability, please do not open a public issue. DM the maintainer
+        via the Discord link in <a href="https://github.com/Soumyadipgithub/SyncSpeak/blob/main/SECURITY.md" target="_blank" rel="noopener">SECURITY.md</a>.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        This policy reflects the behaviour of the current release. Any change — for
+        example, if we ever add analytics — will be announced in the release notes and
+        reflected here before the change ships.
+      </p>
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 760px; }
+  .page-head { text-align: center; margin-bottom: var(--space-2xl); }
+  .page-head h1 { margin: var(--space-m) 0 var(--space-l); }
+  .lede { font-size: 1.125rem; color: var(--vibrant-label); max-width: 60ch; margin: 0 auto; }
+
+  .prose { color: var(--vibrant-label); line-height: 1.7; }
+  .prose h2 {
+    color: var(--vibrant-primary);
+    margin-top: var(--space-2xl);
+    margin-bottom: var(--space-s);
+    font-size: 1.375rem;
+  }
+  .prose p { margin-bottom: var(--space-m); }
+  .prose ul {
+    padding-left: var(--space-l);
+    margin-bottom: var(--space-m);
+    display: grid;
+    gap: var(--space-s);
+  }
+  .prose strong { color: var(--vibrant-primary); }
+</style>

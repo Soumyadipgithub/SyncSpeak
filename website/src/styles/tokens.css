@@ -1,0 +1,72 @@
+/*
+ * Liquid Glass DNA — ported 1:1 from src/renderer/styles/globals.css
+ * Source of truth for both the Tauri app and this site.
+ * Keep values identical so the app and site read as siblings.
+ */
+
+:root {
+  /* HIG Semantic Scales (8px Grid) */
+  --space-xs: 4px;
+  --space-s: 8px;
+  --space-m: 16px;
+  --space-l: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 72px;
+  --space-4xl: 120px;
+
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 20px;
+  --radius-xl: 32px;
+  --radius-pill: 100px;
+
+  /* HIG Vibrancy Typography */
+  --vibrant-primary: #ffffff;
+  --vibrant-label: rgba(255, 255, 255, 0.65);
+  --vibrant-secondary: rgba(255, 255, 255, 0.45);
+  --vibrant-tertiary: rgba(255, 255, 255, 0.25);
+
+  /* DNA Color Palette (Neutral High-Contrast) */
+  --accent-blue: #0a84ff;
+  --orange: #ff9f0a;
+  --green: #30d158;
+  --red: #ff453a;
+
+  /* Refractive Material — Stained Glass DNA */
+  --liquid-blur: blur(20px) saturate(180%) brightness(1.2);
+  --glass-panel: rgba(15, 15, 20, 0.35);
+  --glass-bg: rgba(25, 25, 30, 0.25);
+  --glass-bg-hover: rgba(35, 35, 45, 0.35);
+  --border-glass: rgba(255, 255, 255, 0.12);
+  --border-blue: rgba(10, 132, 255, 0.3);
+  --internal-glow: rgba(10, 132, 255, 0.05);
+  --glass-blue: rgba(10, 132, 255, 0.05);
+
+  /* Liquid Glass Specular Tokens */
+  --liquid-specular: rgba(255, 255, 255, 0.85);
+  --liquid-edge: rgba(255, 255, 255, 0.15);
+  --liquid-shadow: rgba(0, 0, 0, 0.25);
+  --liquid-refraction: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
+
+  /* Controls */
+  --segmented-pill: #ffffff;
+  --segmented-bg: rgba(255, 255, 255, 0.1);
+  --liquid-morph: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Web-only extensions (site needs a background; the Tauri app doesn't) */
+  --bg-deep: #060608;
+  --bg-mid: #0d0d14;
+  --aurora-1: rgba(10, 132, 255, 0.18);
+  --aurora-2: rgba(48, 209, 88, 0.10);
+  --aurora-3: rgba(255, 159, 10, 0.08);
+
+  /* Typography scale (web) */
+  --font-display: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SF Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}

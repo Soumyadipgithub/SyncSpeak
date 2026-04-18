@@ -1,0 +1,336 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroTerminal from '../components/HeroTerminal.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+
+const title = 'SyncSpeak — Real-time Hindi to English for meetings';
+const description =
+  'A desktop app that translates your Hindi voice into English in real time for Google Meet, Zoom, and Teams. Local, open-source, neural VAD, 5-utterance context, sentence-pipelined TTS.';
+
+const softwareJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'SyncSpeak',
+  operatingSystem: 'Windows, macOS, Linux',
+  applicationCategory: 'CommunicationApplication',
+  applicationSubCategory: 'Translation',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '5',
+    ratingCount: '1',
+  },
+  description,
+  url: 'https://syncspeak.pages.dev',
+  downloadUrl: 'https://github.com/Soumyadipgithub/SyncSpeak/releases/latest',
+  softwareVersion: '2.0',
+  license: 'https://opensource.org/licenses/MIT',
+};
+---
+
+<BaseLayout title={title} description={description}>
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify(softwareJsonLd)}
+  />
+
+  <section class="hero section">
+    <div class="container hero-grid">
+      <div class="hero-copy fade-up">
+        <span class="glass-pill">
+          <span class="pill-dot"></span>
+          Open-source · v3 pipeline · Runs locally
+        </span>
+        <h1>
+          Speak Hindi.
+          <br />
+          <span class="gradient-text">The meeting hears English.</span>
+        </h1>
+        <p class="hero-sub">
+          SyncSpeak is a desktop app that listens to your Hindi voice, translates it in
+          real time, and plays natural English into Google Meet, Zoom, or Teams —
+          under a second of latency, with context awareness across your last five
+          sentences.
+        </p>
+        <div class="hero-ctas">
+          <DownloadButton label="Download for" />
+          <a href="/how-it-works" class="ghost-btn">See how it works →</a>
+        </div>
+        <ul class="hero-meta" role="list">
+          <li><strong>&lt; 1.2s</strong> perceived latency</li>
+          <li><strong>5-utterance</strong> rolling context</li>
+          <li><strong>100%</strong> local voice capture</li>
+        </ul>
+      </div>
+
+      <div class="hero-visual fade-up">
+        <HeroTerminal />
+      </div>
+    </div>
+  </section>
+
+  <section class="features section">
+    <div class="container">
+      <header class="section-head">
+        <span class="hig-label">Why SyncSpeak</span>
+        <h2>Built for how meetings actually happen.</h2>
+      </header>
+      <div class="grid-3">
+        <article class="glass-card feat">
+          <div class="feat-icon">🎙️</div>
+          <h3>Neural VAD, not a fixed mic gate</h3>
+          <p>
+            WebRTC Neural VAD with a 500 ms pre-buffer catches every
+            <em>“kya”</em> and <em>“toh”</em> instead of clipping the first syllable.
+          </p>
+        </article>
+        <article class="glass-card feat">
+          <div class="feat-icon">🧠</div>
+          <h3>Context-aware translation</h3>
+          <p>
+            Groq Llama 3.3 70B sees your last five utterances so pronouns, names,
+            and jargon carry from sentence to sentence.
+          </p>
+        </article>
+        <article class="glass-card feat">
+          <div class="feat-icon">⚡</div>
+          <h3>Sentence-pipelined TTS</h3>
+          <p>
+            Sarvam Bulbul v3 starts speaking the first clause while the next is still
+            being synthesized — you never wait for a full paragraph to finish.
+          </p>
+        </article>
+        <article class="glass-card feat">
+          <div class="feat-icon">🎧</div>
+          <h3>Routes to any meeting app</h3>
+          <p>
+            VB-Cable virtual mic feeds translated audio into Google Meet, Zoom, Teams,
+            Discord — anything that accepts a microphone input.
+          </p>
+        </article>
+        <article class="glass-card feat">
+          <div class="feat-icon">🪟</div>
+          <h3>True desktop transparency</h3>
+          <p>
+            Tauri v2 shell with Liquid Glass chrome. A floating lens on your desktop —
+            never a heavy Electron window.
+          </p>
+        </article>
+        <article class="glass-card feat">
+          <div class="feat-icon">🔓</div>
+          <h3>Open-source, your keys</h3>
+          <p>
+            MIT-licensed. Sarvam and Groq keys live in your local config file, never
+            uploaded, never shared.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="pipeline section">
+    <div class="container">
+      <header class="section-head">
+        <span class="hig-label">The pipeline</span>
+        <h2>Six stages. One fluid voice.</h2>
+      </header>
+      <ol class="pipeline-steps" role="list">
+        <li class="glass-card step">
+          <span class="step-n">01</span>
+          <h3>Microphone</h3>
+          <p>Your real mic, captured at 16 kHz with WASAPI reinit for stability.</p>
+        </li>
+        <li class="glass-card step">
+          <span class="step-n">02</span>
+          <h3>Neural VAD</h3>
+          <p>WebRTC VAD detects speech vs. silence. 500 ms pre-buffer prevents clipping.</p>
+        </li>
+        <li class="glass-card step">
+          <span class="step-n">03</span>
+          <h3>Sarvam Saarika v2.5</h3>
+          <p>Hindi / Hinglish speech → text, with a correction table for common mis-mappings.</p>
+        </li>
+        <li class="glass-card step">
+          <span class="step-n">04</span>
+          <h3>Groq Llama 3.3 70B</h3>
+          <p>Translation with 5-utterance rolling context for coherent meeting speech.</p>
+        </li>
+        <li class="glass-card step">
+          <span class="step-n">05</span>
+          <h3>Sarvam Bulbul v3</h3>
+          <p>Text → speech, streamed sentence by sentence so playback starts instantly.</p>
+        </li>
+        <li class="glass-card step">
+          <span class="step-n">06</span>
+          <h3>VB-Cable out</h3>
+          <p>Virtual mic feeds Google Meet, Zoom, Teams, Discord — anything.</p>
+        </li>
+      </ol>
+      <div class="pipeline-cta">
+        <a href="/how-it-works" class="ghost-btn">Read the full pipeline →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta section">
+    <div class="container">
+      <div class="glass-card cta-card">
+        <h2>Try it in your next meeting.</h2>
+        <p>Free. Open-source. Your voice stays on your machine.</p>
+        <div class="cta-ctas">
+          <DownloadButton label="Download for" />
+          <a
+            href="https://github.com/Soumyadipgithub/SyncSpeak"
+            class="ghost-btn"
+            target="_blank"
+            rel="noopener"
+          >
+            ⭐ Star on GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { padding-top: var(--space-2xl); }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: var(--space-3xl);
+    align-items: center;
+  }
+
+  .pill-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+  }
+
+  .hero-copy h1 {
+    margin-top: var(--space-l);
+    margin-bottom: var(--space-l);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--accent-blue), var(--green));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero-sub {
+    max-width: 54ch;
+    font-size: 1.125rem;
+    color: var(--vibrant-label);
+    margin-bottom: var(--space-xl);
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: var(--space-m);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-xl);
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: var(--space-xl);
+    flex-wrap: wrap;
+    list-style: none;
+    padding-top: var(--space-l);
+    border-top: 1px solid var(--border-glass);
+    color: var(--vibrant-secondary);
+    font-size: 0.9375rem;
+  }
+  .hero-meta strong {
+    display: block;
+    color: var(--vibrant-primary);
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+
+  .hero-visual {
+    display: flex;
+    justify-content: center;
+  }
+
+  .section-head {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+  }
+  .section-head .hig-label { display: block; margin-bottom: var(--space-s); }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-l);
+  }
+
+  .feat {
+    padding: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+  .feat-icon {
+    font-size: 1.75rem;
+    margin-bottom: var(--space-s);
+  }
+
+  .pipeline-steps {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-l);
+  }
+
+  .step {
+    padding: var(--space-xl);
+    position: relative;
+  }
+  .step-n {
+    position: absolute;
+    top: var(--space-m);
+    right: var(--space-l);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--vibrant-tertiary);
+  }
+  .step h3 { margin-bottom: var(--space-s); }
+
+  .pipeline-cta {
+    margin-top: var(--space-xl);
+    text-align: center;
+  }
+
+  .cta-card {
+    padding: var(--space-3xl);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-l);
+  }
+
+  .cta-ctas {
+    display: flex;
+    gap: var(--space-m);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .grid-3, .pipeline-steps { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .pipeline-steps { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
