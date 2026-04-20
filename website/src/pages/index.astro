@@ -2,15 +2,17 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroTerminal from '../components/HeroTerminal.astro';
 import DownloadButton from '../components/DownloadButton.astro';
+import Icon from '../components/Icon.astro';
+import AppShowcase from '../components/AppShowcase.astro';
 
-const title = 'SyncSpeak — Real-time Hindi to English for meetings';
+const title = 'Sync Speak — Real-time Hindi to English for meetings';
 const description =
   'A desktop app that translates your Hindi voice into English in real time for Google Meet, Zoom, and Teams. Local, open-source, neural VAD, 5-utterance context, sentence-pipelined TTS.';
 
 const softwareJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'SyncSpeak',
+  name: 'Sync Speak',
   operatingSystem: 'Windows, macOS, Linux',
   applicationCategory: 'CommunicationApplication',
   applicationSubCategory: 'Translation',
@@ -23,7 +25,7 @@ const softwareJsonLd = {
   description,
   url: 'https://syncspeak.pages.dev',
   downloadUrl: 'https://github.com/Soumyadipgithub/SyncSpeak/releases/latest',
-  softwareVersion: '2.0',
+  softwareVersion: '3.0',
   license: 'https://opensource.org/licenses/MIT',
 };
 ---
@@ -48,7 +50,7 @@ const softwareJsonLd = {
           <span class="gradient-text">The meeting hears English.</span>
         </h1>
         <p class="hero-sub">
-          SyncSpeak is a desktop app that listens to your Hindi voice, translates it in
+          Sync Speak is a desktop app that listens to your Hindi voice, translates it in
           real time, and plays natural English into Google Meet, Zoom, or Teams —
           under a second of latency, with context awareness across your last five
           sentences.
@@ -57,28 +59,31 @@ const softwareJsonLd = {
           <DownloadButton label="Download for" />
           <a href="/how-it-works" class="ghost-btn">See how it works →</a>
         </div>
-        <ul class="hero-meta" role="list">
-          <li><strong>&lt; 1.2s</strong> perceived latency</li>
-          <li><strong>5-utterance</strong> rolling context</li>
-          <li><strong>100%</strong> local voice capture</li>
-        </ul>
       </div>
 
       <div class="hero-visual fade-up">
         <HeroTerminal />
       </div>
+
+      <ul class="hero-meta" role="list">
+        <li><strong>&lt; 1.2s</strong> perceived latency</li>
+        <li><strong>5-utterance</strong> rolling context</li>
+        <li><strong>100%</strong> local voice capture</li>
+      </ul>
     </div>
   </section>
+
+  <AppShowcase />
 
   <section class="features section">
     <div class="container">
       <header class="section-head">
-        <span class="hig-label">Why SyncSpeak</span>
+        <span class="hig-label">Why Sync Speak</span>
         <h2>Built for how meetings actually happen.</h2>
       </header>
       <div class="grid-3">
         <article class="glass-card feat">
-          <div class="feat-icon">🎙️</div>
+          <div class="feat-icon"><Icon name="mic" /></div>
           <h3>Neural VAD, not a fixed mic gate</h3>
           <p>
             WebRTC Neural VAD with a 500 ms pre-buffer catches every
@@ -86,7 +91,7 @@ const softwareJsonLd = {
           </p>
         </article>
         <article class="glass-card feat">
-          <div class="feat-icon">🧠</div>
+          <div class="feat-icon"><Icon name="brain" /></div>
           <h3>Context-aware translation</h3>
           <p>
             Groq Llama 3.3 70B sees your last five utterances so pronouns, names,
@@ -94,7 +99,7 @@ const softwareJsonLd = {
           </p>
         </article>
         <article class="glass-card feat">
-          <div class="feat-icon">⚡</div>
+          <div class="feat-icon"><Icon name="zap" /></div>
           <h3>Sentence-pipelined TTS</h3>
           <p>
             Sarvam Bulbul v3 starts speaking the first clause while the next is still
@@ -102,7 +107,7 @@ const softwareJsonLd = {
           </p>
         </article>
         <article class="glass-card feat">
-          <div class="feat-icon">🎧</div>
+          <div class="feat-icon"><Icon name="headphones" /></div>
           <h3>Routes to any meeting app</h3>
           <p>
             VB-Cable virtual mic feeds translated audio into Google Meet, Zoom, Teams,
@@ -110,7 +115,7 @@ const softwareJsonLd = {
           </p>
         </article>
         <article class="glass-card feat">
-          <div class="feat-icon">🪟</div>
+          <div class="feat-icon"><Icon name="window" /></div>
           <h3>True desktop transparency</h3>
           <p>
             Tauri v2 shell with Liquid Glass chrome. A floating lens on your desktop —
@@ -118,7 +123,7 @@ const softwareJsonLd = {
           </p>
         </article>
         <article class="glass-card feat">
-          <div class="feat-icon">🔓</div>
+          <div class="feat-icon"><Icon name="lock-open" /></div>
           <h3>Open-source, your keys</h3>
           <p>
             MIT-licensed. Sarvam and Groq keys live in your local config file, never
@@ -182,11 +187,12 @@ const softwareJsonLd = {
           <DownloadButton label="Download for" />
           <a
             href="https://github.com/Soumyadipgithub/SyncSpeak"
-            class="ghost-btn"
+            class="ghost-btn star-btn"
             target="_blank"
             rel="noopener"
           >
-            ⭐ Star on GitHub
+            <Icon name="star" size={16} />
+            Star on GitHub
           </a>
         </div>
       </div>
@@ -200,8 +206,13 @@ const softwareJsonLd = {
   .hero-grid {
     display: grid;
     grid-template-columns: 1.1fr 1fr;
-    gap: var(--space-3xl);
+    column-gap: var(--space-3xl);
+    row-gap: 0;
     align-items: center;
+  }
+  .hero-grid > .hero-meta {
+    grid-column: 1;
+    margin-top: var(--space-l);
   }
 
   .pill-dot {
@@ -215,6 +226,7 @@ const softwareJsonLd = {
   .hero-copy h1 {
     margin-top: var(--space-l);
     margin-bottom: var(--space-l);
+    font-size: clamp(2.25rem, 4vw, 3.5rem);
   }
 
   .gradient-text {
@@ -268,7 +280,7 @@ const softwareJsonLd = {
 
   .grid-3 {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: var(--space-l);
   }
 
@@ -279,14 +291,22 @@ const softwareJsonLd = {
     gap: var(--space-s);
   }
   .feat-icon {
-    font-size: 1.75rem;
-    margin-bottom: var(--space-s);
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-m);
+    background: var(--glass-panel);
+    border: 1px solid var(--border-glass);
+    color: var(--vibrant-primary);
+    margin-bottom: var(--space-m);
   }
 
   .pipeline-steps {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: var(--space-l);
   }
 
@@ -325,12 +345,49 @@ const softwareJsonLd = {
     justify-content: center;
   }
 
-  @media (max-width: 900px) {
-    .hero-grid { grid-template-columns: 1fr; }
-    .grid-3, .pipeline-steps { grid-template-columns: 1fr; }
+  .star-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
-  @media (min-width: 901px) and (max-width: 1100px) {
-    .grid-3 { grid-template-columns: repeat(2, 1fr); }
-    .pipeline-steps { grid-template-columns: repeat(2, 1fr); }
+  .star-btn :global(svg) {
+    transition: transform 300ms var(--liquid-morph);
+  }
+  .star-btn:hover :global(svg) {
+    transform: rotate(-12deg) scale(1.1);
+    color: var(--orange);
+  }
+
+  @media (max-width: 1024px) {
+    .hero-grid {
+      grid-template-columns: 1.4fr 1fr;
+      gap: var(--space-xl);
+      align-items: center;
+    }
+    .hero-sub { font-size: 1rem; margin-bottom: var(--space-l); }
+    .hero-ctas {
+      flex-wrap: nowrap;
+      gap: var(--space-s);
+      margin-bottom: 0;
+    }
+    .hero-grid > .hero-meta {
+      grid-column: 1 / -1;
+      margin-top: var(--space-m);
+      padding-top: var(--space-m);
+      justify-content: center;
+    }
+  }
+  @media (max-width: 640px) {
+    .hero-grid { grid-template-columns: 1fr; gap: var(--space-2xl); }
+    .hero-grid > .hero-meta {
+      grid-column: auto;
+      margin-top: 0;
+      gap: var(--space-s);
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      font-size: 0.8125rem;
+    }
+    .hero-grid > .hero-meta strong { font-size: 0.9375rem; }
+    .cta-card { padding: var(--space-2xl) var(--space-l); }
   }
 </style>

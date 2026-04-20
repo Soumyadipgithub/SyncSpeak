@@ -48,8 +48,8 @@ const columns = [
     <div class="grid">
       <div class="brand-col">
         <div class="brand">
-          <span class="logo-dot" aria-hidden="true"></span>
-          <span>SyncSpeak</span>
+          <img src="/logo2.png" alt="" class="logo-img" aria-hidden="true" />
+          <span>Sync Speak</span>
         </div>
         <p class="tagline">
           Real-time Hindi → English for meetings. Local, open-source, fast.
@@ -78,7 +78,7 @@ const columns = [
     </div>
 
     <div class="bottom">
-      <span>© {year} SyncSpeak. Open-source under MIT.</span>
+      <span>© {year} Sync Speak. Open-source under MIT.</span>
       <span class="status">
         <span class="pulse" aria-hidden="true"></span> v3 pipeline active
       </span>
@@ -99,6 +99,8 @@ const columns = [
     gap: var(--space-xl);
   }
 
+  .col ul a { word-break: break-word; }
+
   .brand {
     display: inline-flex;
     align-items: center;
@@ -107,18 +109,28 @@ const columns = [
     font-size: 1.125rem;
   }
 
-  .logo-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-blue), var(--green));
-    box-shadow: 0 0 12px var(--accent-blue);
+  .logo-img {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-s);
+    object-fit: cover;
+    flex-shrink: 0;
   }
 
   .tagline {
     margin-top: var(--space-m);
     max-width: 32ch;
     font-size: 0.9375rem;
+  }
+
+  .col h4 {
+    display: inline-block;
+    font-size: 15px;
+    margin-bottom: var(--space-xs);
+    background: linear-gradient(135deg, var(--accent-blue), var(--green));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   .col ul {
@@ -169,8 +181,20 @@ const columns = [
     50% { opacity: 1; }
   }
 
-  @media (max-width: 820px) {
-    .grid { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-xl) var(--space-l);
+    }
     .brand-col { grid-column: 1 / -1; }
+  }
+  @media (max-width: 640px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+    .bottom {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .col ul { gap: var(--space-xs); }
   }
 </style>

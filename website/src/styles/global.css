@@ -12,6 +12,7 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  overflow-x: clip;
 }
 
 body {
@@ -24,7 +25,8 @@ body {
   text-rendering: optimizeLegibility;
   line-height: 1.5;
   background: var(--bg-deep);
-  overflow-x: hidden;
+  overflow-x: clip;
+  max-width: 100vw;
 }
 
 /* Ambient aurora — the site's stand-in for the desktop the app sees through */
@@ -59,6 +61,9 @@ video {
   height: auto;
 }
 
+/* Overflow guards — prevent runaway flex/grid children from blowing past viewport */
+main, section, article, .container { min-width: 0; }
+
 button {
   font-family: inherit;
   cursor: pointer;
@@ -89,7 +94,14 @@ code {
   border-radius: var(--radius-s);
   background: var(--glass-panel);
   color: var(--vibrant-primary);
+  word-break: break-word;
 }
+
+pre {
+  overflow-x: auto;
+  max-width: 100%;
+}
+pre code { word-break: normal; white-space: pre; }
 
 ::selection {
   background: var(--accent-blue);
@@ -193,11 +205,12 @@ code {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--space-l);
+  padding: 0 var(--gutter);
 }
 
 .section {
-  padding: var(--space-4xl) 0;
+  padding-top: var(--space-3xl);
+  padding-bottom: var(--space-3xl);
 }
 
 /* Controlled animations — respect reduced-motion */
@@ -218,3 +231,56 @@ code {
 }
 
 .fade-up { animation: fade-up 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+/* Tablet hero CTAs — keep both buttons on one line in the narrower left column.
+   Shrinks the Download button's oversized .btn-lg padding and the ghost button so
+   "Download for Windows" + "See how it works →" fit side-by-side at 641–1024px. */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hero-ctas > .btn-lg,
+  .hero-ctas > .gradient-btn,
+  .hero-ctas > .ghost-btn {
+    padding-left: var(--space-s);
+    padding-right: var(--space-s);
+    font-size: 0.875rem;
+    white-space: nowrap;
+    flex: 1 1 0;
+    min-width: 0;
+    gap: 6px;
+  }
+  .hero-ctas > .btn-lg svg,
+  .hero-ctas > .gradient-btn svg,
+  .hero-ctas > .ghost-btn svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+  }
+  .hero-ctas .dl-version { display: none; }
+}
+
+/* Mobile CTA groups — unified full-width buttons (Apple/Stripe pattern).
+   Applies to any horizontal CTA row so every page's primary + secondary buttons
+   stack identically on mobile. */
+@media (max-width: 640px) {
+  .hero-ctas,
+  .cta-ctas,
+  .cta-row,
+  .page-cta,
+  .primary-cta,
+  .pipeline-cta {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-s);
+    width: 100%;
+  }
+  .hero-ctas > *,
+  .cta-ctas > *,
+  .cta-row > *,
+  .page-cta > *,
+  .primary-cta > *,
+  .pipeline-cta > * {
+    width: 100%;
+    justify-content: center;
+    padding-left: var(--space-l);
+    padding-right: var(--space-l);
+  }
+}

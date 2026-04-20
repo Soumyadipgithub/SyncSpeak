@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
 
-const title = 'Developers — SyncSpeak';
+const title = 'Developers — Sync Speak';
 const description =
-  'SyncSpeak is open-source under MIT. Three-tier architecture: Rust (Tauri shell), React (UI), Python (audio sidecar). Contribution guide, architecture docs, and first-issue picks.';
+  'Sync Speak is open-source under MIT. Three-tier architecture: Rust (Tauri shell), React (UI), Python (audio sidecar). Contribution guide, architecture docs, and first-issue picks.';
 
 const stack = [
   { label: 'Shell', tech: 'Tauri v2 (Rust)', role: 'Native window, IPC bridge, history/config storage' },
@@ -31,18 +32,19 @@ const firstIssues = [
       <span class="hig-label">Developers</span>
       <h1>Open-source. Opinionated. Welcoming.</h1>
       <p class="lede">
-        SyncSpeak is MIT-licensed and actively developed. The codebase is small, the
+        Sync Speak is MIT-licensed and actively developed. The codebase is small, the
         pipeline is documented end-to-end, and the contribution workflow is boringly
         professional on purpose — branch protection, issue-driven branches, CI on every PR.
       </p>
       <div class="cta-row">
         <a
           href="https://github.com/Soumyadipgithub/SyncSpeak"
-          class="gradient-btn"
+          class="gradient-btn star-btn"
           target="_blank"
           rel="noopener"
         >
-          ⭐ Star on GitHub
+          <Icon name="star" size={16} />
+          Star on GitHub
         </a>
         <a
           href="https://github.com/Soumyadipgithub/SyncSpeak/blob/main/CONTRIBUTING.md"
@@ -156,11 +158,14 @@ const firstIssues = [
     color: var(--vibrant-label);
   }
   .cta-row { display: flex; gap: var(--space-m); justify-content: center; flex-wrap: wrap; }
+  .star-btn { display: inline-flex; align-items: center; gap: 8px; }
+  .star-btn :global(svg) { transition: transform 300ms var(--liquid-morph); }
+  .star-btn:hover :global(svg) { transform: rotate(-12deg) scale(1.1); }
 
   section { margin-bottom: var(--space-3xl); }
   section h2 { margin-bottom: var(--space-l); }
 
-  .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-l); }
+  .tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-l); }
   .tier { padding: var(--space-xl); }
   .tier-n {
     display: inline-block;
@@ -222,8 +227,12 @@ const firstIssues = [
     color: var(--accent-blue);
   }
 
-  @media (max-width: 900px) {
-    .tiers { grid-template-columns: 1fr; }
-    .stack-row { grid-template-columns: 1fr; gap: var(--space-xs); }
+  @media (max-width: 640px) {
+    .stack-row { grid-template-columns: 1fr; gap: var(--space-xs); padding: var(--space-m); }
+    .page-head { margin-bottom: var(--space-2xl); }
+    .lede { font-size: 1rem; }
+    .cta-row { gap: var(--space-s); }
+    .first-issues { padding: var(--space-l); }
+    .tier { padding: var(--space-l); }
   }
 </style>

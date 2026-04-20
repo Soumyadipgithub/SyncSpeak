@@ -2,9 +2,9 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import DownloadButton from '../components/DownloadButton.astro';
 
-const title = 'How SyncSpeak works — pipeline deep dive';
+const title = 'How Sync Speak works — pipeline deep dive';
 const description =
-  'Step-by-step walkthrough of the SyncSpeak audio pipeline: microphone capture, neural VAD, Sarvam Saarika STT, Groq Llama translation, Sarvam Bulbul TTS, and VB-Cable routing.';
+  'Step-by-step walkthrough of the Sync Speak audio pipeline: microphone capture, neural VAD, Sarvam Saarika STT, Groq Llama translation, Sarvam Bulbul TTS, and VB-Cable routing.';
 
 const steps = [
   {
@@ -60,7 +60,7 @@ const steps = [
     title: 'Output routing',
     tech: 'VB-Cable · virtual microphone',
     body:
-      'VB-Cable presents a virtual input device to the OS. SyncSpeak writes the ' +
+      'VB-Cable presents a virtual input device to the OS. Sync Speak writes the ' +
       'translated audio into it, and your meeting app (Meet, Zoom, Teams, Discord) ' +
       'selects the virtual cable as its microphone. The meeting hears English.',
   },
@@ -78,7 +78,7 @@ const steps = [
 const howToJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'HowTo',
-  name: 'How SyncSpeak translates your Hindi voice into English in real time',
+  name: 'How Sync Speak translates your Hindi voice into English in real time',
   description,
   step: steps.map((s) => ({
     '@type': 'HowToStep',
@@ -101,7 +101,7 @@ const howToJsonLd = {
       <span class="hig-label">Under the hood</span>
       <h1>From your voice to the meeting, in seven stages.</h1>
       <p class="lede">
-        SyncSpeak is a pipeline, not a monolith. Each stage solves one problem and hands
+        Sync Speak is a pipeline, not a monolith. Each stage solves one problem and hands
         off to the next. Here's what happens between the moment you say something in
         Hindi and the moment Zoom plays it back in English.
       </p>
@@ -164,14 +164,26 @@ const howToJsonLd = {
     display: flex;
     justify-content: center;
     margin-bottom: var(--space-2xl);
-    padding: var(--space-m);
+    padding: var(--space-m) var(--space-l);
     background: var(--glass-panel);
     border: 1px solid var(--border-glass);
     border-radius: var(--radius-pill);
     font-size: 0.875rem;
-    overflow-x: auto;
   }
-  .flow code { background: none; padding: 0; white-space: nowrap; }
+  .flow code {
+    background: none;
+    padding: 0;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  @media (max-width: 720px) {
+    .flow {
+      border-radius: var(--radius-l);
+      padding: var(--space-m) var(--space-l);
+    }
+    .flow code { white-space: normal; word-break: break-word; line-height: 1.6; }
+  }
 
   .steps {
     list-style: none;

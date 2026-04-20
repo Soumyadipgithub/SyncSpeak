@@ -5,15 +5,32 @@
  */
 
 :root {
-  /* HIG Semantic Scales (8px Grid) */
+  /* Fluid Responsive Spacing — clamp(min, preferred, max) scales smoothly from 320px to 1440px+
+     Small tokens stay fixed; large ones contract on narrow screens so sections breathe on mobile. */
   --space-xs: 4px;
   --space-s: 8px;
-  --space-m: 16px;
-  --space-l: 24px;
-  --space-xl: 32px;
-  --space-2xl: 48px;
-  --space-3xl: 72px;
-  --space-4xl: 120px;
+  --space-m: clamp(0.875rem, 0.5vw + 0.75rem, 1rem);        /* 14 → 16 */
+  --space-l: clamp(1.125rem, 1vw + 0.875rem, 1.5rem);       /* 18 → 24 */
+  --space-xl: clamp(1.25rem, 2vw + 0.75rem, 2rem);          /* 20 → 32 */
+  --space-2xl: clamp(1.75rem, 3.5vw + 0.75rem, 3rem);       /* 28 → 48 */
+  --space-3xl: clamp(2.25rem, 5vw + 1rem, 4.5rem);          /* 36 → 72 */
+  --space-4xl: clamp(3rem, 9vw + 1rem, 7.5rem);             /* 48 → 120 */
+
+  /* Fluid Typography */
+  --text-sm: clamp(0.8125rem, 0.15vw + 0.78rem, 0.875rem);  /* 13 → 14 */
+  --text-base: clamp(0.9375rem, 0.3vw + 0.875rem, 1rem);    /* 15 → 16 */
+  --text-lg: clamp(1rem, 0.5vw + 0.9rem, 1.125rem);         /* 16 → 18 */
+  --text-xl: clamp(1.125rem, 1vw + 0.9rem, 1.375rem);       /* 18 → 22 */
+
+  /* Unified Breakpoints — reference values only (CSS media queries can't read custom props) */
+  --bp-sm: 640px;   /* mobile ceiling */
+  --bp-md: 1024px;  /* tablet ceiling / desktop floor */
+  --bp-lg: 1280px;  /* large desktop */
+
+  /* Single source of truth for page-edge gutters.
+     Every edge-aware container (nav, .container, footer) reads from this,
+     guaranteeing the left/right gap is identical everywhere. */
+  --gutter: clamp(1.25rem, 4vw, 1.75rem);  /* 20 → 28px */
 
   --radius-s: 8px;
   --radius-m: 12px;

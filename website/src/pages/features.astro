@@ -1,14 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import DownloadButton from '../components/DownloadButton.astro';
+import Icon from '../components/Icon.astro';
 
-const title = 'Features — SyncSpeak';
+const title = 'Features — Sync Speak';
 const description =
-  'Everything SyncSpeak does: neural voice activity detection, context-aware translation, sentence-pipelined TTS, virtual-cable audio routing, and a transparent desktop shell.';
+  'Everything Sync Speak does: neural voice activity detection, context-aware translation, sentence-pipelined TTS, virtual-cable audio routing, and a transparent desktop shell.';
 
 const features = [
   {
-    icon: '🎙️',
+    icon: 'mic',
     title: 'Neural Voice Activity Detection',
     body:
       'WebRTC Neural VAD separates speech from silence in 10 ms frames. A 500 ms ' +
@@ -16,7 +17,7 @@ const features = [
       'like "kya", "toh", "haan" is never clipped.',
   },
   {
-    icon: '🗣️',
+    icon: 'waveform',
     title: 'Hindi + Hinglish STT',
     body:
       'Sarvam Saarika v2.5 handles code-mixed speech natively — "deployment ho gaya" ' +
@@ -24,7 +25,7 @@ const features = [
       'catches common phonetic mis-mappings before they reach the LLM.',
   },
   {
-    icon: '🧠',
+    icon: 'brain',
     title: '5-utterance rolling context',
     body:
       'Groq Llama 3.3 70B sees your last five sentences when translating the current ' +
@@ -32,7 +33,7 @@ const features = [
       'running topics maintain continuity across a meeting.',
   },
   {
-    icon: '⚡',
+    icon: 'zap',
     title: 'Sentence-pipelined TTS',
     body:
       'Sarvam Bulbul v3 synthesises English audio one sentence at a time. Playback ' +
@@ -40,7 +41,7 @@ const features = [
       'latency stays under 1.2 seconds even for long replies.',
   },
   {
-    icon: '🎧',
+    icon: 'headphones',
     title: 'Virtual-cable routing',
     body:
       'VB-Cable\'s virtual microphone takes the translated audio and feeds it into any ' +
@@ -48,58 +49,58 @@ const features = [
       'Whereby, Gather. Zero plugin required in the meeting app.',
   },
   {
-    icon: '🛑',
+    icon: 'shield-off',
     title: 'Self-talk prevention',
     body:
-      'A _tts_active flag blocks the microphone while SyncSpeak is speaking English, ' +
+      'A _tts_active flag blocks the microphone while Sync Speak is speaking English, ' +
       'so the translated output is never re-captured and re-translated back to Hindi. ' +
       'VAD state resets cleanly between utterances.',
   },
   {
-    icon: '🔁',
+    icon: 'refresh',
     title: 'Device resilience',
     body:
-      'If your selected mic is held by Teams or Zoom, SyncSpeak falls back to the system ' +
+      'If your selected mic is held by Teams or Zoom, Sync Speak falls back to the system ' +
       'default mic. WASAPI is re-initialised before every stream open, eliminating the ' +
       'classic -9985 stale device error on Windows.',
   },
   {
-    icon: '🪟',
+    icon: 'window',
     title: 'Liquid Glass transparency',
     body:
       'A native Tauri v2 shell with genuine desktop transparency — the app is a frosted ' +
       'lens over your screen, not a windowed chrome. Minimal CPU, no Electron overhead.',
   },
   {
-    icon: '🔒',
+    icon: 'lock',
     title: 'Keys stay on your machine',
     body:
       'Sarvam and Groq API keys are entered in the Settings modal and saved to a local ' +
-      'config file. Nothing is uploaded to SyncSpeak servers. There are no SyncSpeak ' +
+      'config file. Nothing is uploaded to Sync Speak servers. There are no Sync Speak ' +
       'servers.',
   },
   {
-    icon: '📜',
+    icon: 'scroll',
     title: 'Conversation history',
     body:
       'Every translated utterance is saved locally so you can scroll back through a ' +
       'meeting. History is yours, on disk, clearable at will.',
   },
   {
-    icon: '🎛️',
+    icon: 'sliders',
     title: 'Voice + prosody control',
     body:
       'Choose between multiple Bulbul voices and tune speech rate. The translation tone ' +
       'matches the formality of your meeting.',
   },
   {
-    icon: '🧩',
+    icon: 'puzzle',
     title: 'Open, swappable, extensible',
     body:
       'The pipeline is three layers: Rust shell, React UI, Python audio sidecar. Swap ' +
       'any model, add a new language, fork the repo — MIT licensed.',
   },
-];
+] as const;
 ---
 
 <BaseLayout title={title} description={description}>
@@ -108,7 +109,7 @@ const features = [
       <span class="hig-label">Features</span>
       <h1>Every detail, tuned for real meetings.</h1>
       <p class="lede">
-        SyncSpeak is not a wrapper around a generic translation API. Every stage of the
+        Sync Speak is not a wrapper around a generic translation API. Every stage of the
         pipeline is engineered around the specific failure modes of voice translation
         in corporate meetings — mic contention, first-syllable clipping, pronoun drift,
         self-talk loops, and perceived latency.
@@ -119,7 +120,7 @@ const features = [
       {
         features.map((f) => (
           <article class="glass-card feat">
-            <div class="icon" aria-hidden="true">{f.icon}</div>
+            <div class="icon"><Icon name={f.icon} size={22} /></div>
             <h2>{f.title}</h2>
             <p>{f.body}</p>
           </article>
@@ -150,7 +151,7 @@ const features = [
 
   .features {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: var(--space-l);
   }
   .feat {
@@ -160,7 +161,18 @@ const features = [
     gap: var(--space-s);
   }
   .feat h2 { font-size: 1.1875rem; }
-  .icon { font-size: 1.75rem; margin-bottom: var(--space-s); }
+  .icon {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-m);
+    background: var(--glass-panel);
+    border: 1px solid var(--border-glass);
+    color: var(--vibrant-primary);
+    margin-bottom: var(--space-m);
+  }
 
   .page-cta {
     margin-top: var(--space-3xl);
@@ -170,10 +182,9 @@ const features = [
     flex-wrap: wrap;
   }
 
-  @media (max-width: 900px) {
-    .features { grid-template-columns: 1fr; }
-  }
-  @media (min-width: 901px) and (max-width: 1100px) {
-    .features { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 640px) {
+    .page-head { margin-bottom: var(--space-2xl); }
+    .lede { font-size: 1rem; }
+    .page-cta { margin-top: var(--space-2xl); }
   }
 </style>

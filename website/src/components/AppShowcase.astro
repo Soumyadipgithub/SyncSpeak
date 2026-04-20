@@ -1,0 +1,455 @@
+---
+const tabs = [
+  {
+    id: 'translate',
+    label: 'Translate',
+    img: '/desk1.png',
+    color: '10, 132, 255',
+    caption:
+      'Live transcription and translation with voice sensitivity control. The window is a frosted lens — your desktop shows through.',
+  },
+  {
+    id: 'history',
+    label: 'History',
+    img: '/desk2.png',
+    color: '191, 90, 242',
+    caption:
+      'Every translated utterance saved locally. Scroll back through a meeting, clear it when you\'re done.',
+  },
+  {
+    id: 'guide',
+    label: 'Guide',
+    img: '/desk3.png',
+    color: '48, 209, 88',
+    caption:
+      'Setup walkthrough checks your Sarvam key, VB-Cable driver, and meeting software before you start.',
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    img: '/desk4.png',
+    color: '255, 159, 10',
+    caption:
+      'API keys, voice output volume, and behavior preferences. Keys live on disk — no cloud account, ever.',
+  },
+];
+---
+
+<section class="showcase section" aria-label="Application preview">
+  <div class="container">
+    <header class="section-head">
+      <span class="hig-label">Inside the app</span>
+      <h2>Four screens. One fluid experience.</h2>
+      <p class="section-lede">
+        Live translation, local history, guided setup, and your keys —
+        every pane a frosted lens over your desktop.
+      </p>
+    </header>
+
+    <div class="showcase-wrap" data-showcase style={`--accent: ${tabs[0].color}`}>
+      <div class="tabs glass-card" role="tablist" aria-label="App screens">
+        <span class="glider" aria-hidden="true">
+          <span class="progress" data-progress></span>
+        </span>
+        {
+          tabs.map((t, i) => (
+            <button
+              type="button"
+              class="tab"
+              role="tab"
+              id={`tab-${t.id}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              aria-controls={`panel-${t.id}`}
+              tabindex={i === 0 ? 0 : -1}
+              data-tab={t.id}
+            >
+              {t.label}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="frame-wrap">
+        <div class="ambient" aria-hidden="true"></div>
+        <div class="frame glass-card" aria-live="polite">
+          <header class="frame-bar">
+            <span class="dot red" aria-hidden="true"></span>
+            <span class="dot amber" aria-hidden="true"></span>
+            <span class="dot green" aria-hidden="true"></span>
+            <span class="frame-title" data-frame-title>Sync Speak — {tabs[0].label}</span>
+          </header>
+          <div class="stage" data-stage>
+            <div class="stage-inner" data-stage-inner>
+              {
+                tabs.map((t, i) => (
+                  <div
+                    class="panel"
+                    role="tabpanel"
+                    id={`panel-${t.id}`}
+                    aria-labelledby={`tab-${t.id}`}
+                    data-panel={t.id}
+                    data-active={i === 0 ? 'true' : 'false'}
+                  >
+                    <img
+                      src={t.img}
+                      alt={`Sync Speak ${t.label} screen`}
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                      decoding="async"
+                      draggable="false"
+                    />
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="caption" data-caption>{tabs[0].caption}</p>
+    </div>
+  </div>
+</section>
+
+<script is:inline define:vars={{ tabs }}>
+  (() => {
+    const root = document.querySelector('[data-showcase]');
+    if (!root) return;
+    const tabEls = Array.from(root.querySelectorAll('[data-tab]'));
+    const panels = Array.from(root.querySelectorAll('[data-panel]'));
+    const title = root.querySelector('[data-frame-title]');
+    const caption = root.querySelector('[data-caption]');
+    const stage = root.querySelector('[data-stage]');
+    const inner = root.querySelector('[data-stage-inner]');
+    const progress = root.querySelector('[data-progress]');
+    const tabsBar = root.querySelector('.tabs');
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let autoTimer = null;
+    let currentIndex = 0;
+    let paused = false;
+
+    const positionGlider = (el) => {
+      if (!tabsBar || !el) return;
+      const parentRect = tabsBar.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
+      tabsBar.style.setProperty('--glider-x', (rect.left - parentRect.left) + 'px');
+      tabsBar.style.setProperty('--glider-w', rect.width + 'px');
+    };
+
+    const restartProgress = () => {
+      if (!progress || reduceMotion || paused) return;
+      progress.classList.remove('run');
+      void progress.offsetWidth;
+      progress.classList.add('run');
+    };
+
+    const select = (id) => {
+      const idx = tabEls.findIndex((t) => t.dataset.tab === id);
+      if (idx < 0) return;
+      currentIndex = idx;
+      const activeTab = tabEls[idx];
+      tabEls.forEach((t) => {
+        const on = t === activeTab;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.setAttribute('tabindex', on ? '0' : '-1');
+      });
+      panels.forEach((p) => {
+        p.dataset.active = p.dataset.panel === id ? 'true' : 'false';
+      });
+      positionGlider(activeTab);
+      const meta = tabs.find((x) => x.id === id);
+      if (meta) {
+        if (title) title.textContent = 'Sync Speak — ' + meta.label;
+        if (caption) caption.textContent = meta.caption;
+        root.style.setProperty('--accent', meta.color);
+      }
+      restartProgress();
+    };
+
+    const advance = () => {
+      const next = tabs[(currentIndex + 1) % tabs.length];
+      select(next.id);
+    };
+
+    const startAuto = () => {
+      if (reduceMotion || paused) return;
+      if (autoTimer) clearInterval(autoTimer);
+      autoTimer = setInterval(advance, 5000);
+      restartProgress();
+    };
+
+    const pauseAuto = () => {
+      paused = true;
+      if (autoTimer) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+      }
+      if (progress) progress.classList.remove('run');
+    };
+
+    tabEls.forEach((t, i) => {
+      t.addEventListener('click', () => {
+        pauseAuto();
+        select(t.dataset.tab);
+      });
+      t.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        pauseAuto();
+        const dir = e.key === 'ArrowRight' ? 1 : -1;
+        const next = tabEls[(i + dir + tabEls.length) % tabEls.length];
+        next.focus();
+        select(next.dataset.tab);
+      });
+    });
+
+    root.addEventListener('pointerenter', () => {
+      if (autoTimer) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+        if (progress) progress.classList.remove('run');
+      }
+    });
+    root.addEventListener('pointerleave', () => {
+      if (!paused) startAuto();
+    });
+
+    if (!reduceMotion && stage && inner) {
+      let raf = 0;
+      stage.addEventListener('pointermove', (e) => {
+        const rect = stage.getBoundingClientRect();
+        const px = (e.clientX - rect.left) / rect.width - 0.5;
+        const py = (e.clientY - rect.top) / rect.height - 0.5;
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          inner.style.setProperty('--rx', (-py * 4).toFixed(2) + 'deg');
+          inner.style.setProperty('--ry', (px * 6).toFixed(2) + 'deg');
+        });
+      });
+      stage.addEventListener('pointerleave', () => {
+        inner.style.setProperty('--rx', '0deg');
+        inner.style.setProperty('--ry', '0deg');
+      });
+    }
+
+    positionGlider(tabEls[0]);
+    window.addEventListener('resize', () => positionGlider(tabEls[currentIndex]));
+    startAuto();
+  })();
+</script>
+
+<style>
+  .showcase { padding-top: var(--space-xl); }
+
+  .showcase .section-head {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+    max-width: 780px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .showcase .section-head .hig-label {
+    display: block;
+    margin-bottom: var(--space-s);
+  }
+  .showcase .section-head h2 {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .section-lede {
+    margin-top: var(--space-m);
+    color: var(--vibrant-label);
+    font-size: 1rem;
+    line-height: 1.55;
+    max-width: 66ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .showcase-wrap {
+    --accent: 10, 132, 255;
+    max-width: 1080px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xl);
+  }
+
+  .tabs {
+    position: relative;
+    display: inline-flex;
+    padding: 4px;
+    gap: 2px;
+    border-radius: var(--radius-pill);
+    isolation: isolate;
+  }
+  .glider {
+    position: absolute;
+    top: 4px;
+    left: var(--glider-x, 4px);
+    width: var(--glider-w, 0);
+    height: calc(100% - 8px);
+    background: var(--segmented-bg);
+    border-radius: var(--radius-pill);
+    transition:
+      left 520ms var(--liquid-morph),
+      width 520ms var(--liquid-morph);
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(var(--accent), 0.95);
+    transform-origin: left center;
+    transform: scaleX(0);
+    box-shadow: 0 0 8px rgba(var(--accent), 0.6);
+    transition: background 600ms var(--liquid-morph);
+  }
+  .progress.run {
+    animation: sp-progress 5s linear forwards;
+  }
+  @keyframes sp-progress {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  .tab {
+    position: relative;
+    z-index: 1;
+    padding: var(--space-s) var(--space-l);
+    background: transparent;
+    border: none;
+    color: var(--vibrant-label);
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: color 300ms var(--liquid-morph);
+  }
+  .tab:hover { color: var(--vibrant-primary); }
+  .tab[aria-selected='true'] { color: var(--vibrant-primary); }
+  .tab:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+  }
+
+  .frame-wrap {
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+    isolation: isolate;
+  }
+  .ambient {
+    position: absolute;
+    inset: -80px;
+    background: radial-gradient(
+      60% 55% at 50% 50%,
+      rgba(var(--accent), 0.38) 0%,
+      rgba(var(--accent), 0.12) 38%,
+      transparent 70%
+    );
+    filter: blur(48px);
+    opacity: 1;
+    transition: background 900ms var(--liquid-morph);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .frame {
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    border-radius: var(--radius-l);
+    position: relative;
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.55),
+      0 0 0 1px rgba(var(--accent), 0.22);
+    transition: box-shadow 900ms var(--liquid-morph);
+  }
+  .frame-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-glass);
+    background: var(--glass-panel);
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .red { background: var(--red); }
+  .amber { background: var(--orange); }
+  .green { background: var(--green); }
+  .frame-title {
+    margin-left: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--vibrant-secondary);
+    letter-spacing: 0.02em;
+  }
+
+  .stage {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    perspective: 1400px;
+  }
+  .stage-inner {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition: transform 500ms var(--liquid-morph);
+    will-change: transform;
+  }
+  .panel {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: scale(0.94) translateY(12px);
+    transition:
+      opacity 560ms var(--liquid-morph),
+      transform 560ms var(--liquid-morph);
+    pointer-events: none;
+  }
+  .panel[data-active='true'] {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+  }
+  .panel img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .caption {
+    max-width: 62ch;
+    text-align: center;
+    color: var(--vibrant-label);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel, .glider, .progress, .stage-inner, .ambient, .frame {
+      transition: none;
+    }
+    .progress { display: none; }
+  }
+
+  @media (max-width: 640px) {
+    .tabs { flex-wrap: wrap; justify-content: center; }
+    .tab { padding: var(--space-s) var(--space-m); font-size: 0.875rem; }
+    .frame-title { display: none; }
+    .ambient { inset: -40px; }
+  }
+</style>

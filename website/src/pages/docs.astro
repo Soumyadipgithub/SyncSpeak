@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const title = 'Docs — SyncSpeak';
+const title = 'Docs — Sync Speak';
 const description =
-  'SyncSpeak technical documentation: architecture, audio pipeline, Sarvam and Groq API reference, setup guide, and the Liquid Glass design system.';
+  'Sync Speak technical documentation: architecture, audio pipeline, Sarvam and Groq API reference, setup guide, and the Liquid Glass design system.';
 
 const docs = [
   {
@@ -129,4 +129,9 @@ const repoDocsBase =
   .help { padding: var(--space-xl); text-align: center; }
   .help h2 { margin-bottom: var(--space-s); }
   .help p { margin-bottom: var(--space-l); }
+
+  @media (max-width: 640px) {
+    .doc-card { padding: var(--space-l); gap: var(--space-m); }
+    .help { padding: var(--space-l); }
+  }
 </style>

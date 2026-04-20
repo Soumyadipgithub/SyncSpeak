@@ -1,10 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import DownloadButton from '../components/DownloadButton.astro';
+import Icon from '../components/Icon.astro';
 
-const title = 'Download SyncSpeak';
+const title = 'Download Sync Speak';
 const description =
-  'Download the latest SyncSpeak build for Windows, macOS, or Linux. Free, open-source, no account required.';
+  'Download the latest Sync Speak build for Windows, macOS, or Linux. Free, open-source, no account required.';
 
 type Asset = { name: string; size: number; browser_download_url: string };
 type Release = {
@@ -34,12 +35,12 @@ const fmt = (bytes: number) => {
 };
 
 const platformOf = (name: string) => {
-  if (/\.(exe|msi)$/i.test(name)) return { label: 'Windows', icon: '🪟' };
-  if (/\.(dmg|pkg)$/i.test(name)) return { label: 'macOS', icon: '' };
-  if (/\.AppImage$/i.test(name)) return { label: 'Linux (AppImage)', icon: '🐧' };
-  if (/\.deb$/i.test(name)) return { label: 'Linux (Debian)', icon: '🐧' };
-  if (/\.rpm$/i.test(name)) return { label: 'Linux (RPM)', icon: '🐧' };
-  return { label: 'Other', icon: '📦' };
+  if (/\.(exe|msi)$/i.test(name)) return { label: 'Windows', icon: 'window' as const };
+  if (/\.(dmg|pkg)$/i.test(name)) return { label: 'macOS', icon: 'laptop' as const };
+  if (/\.AppImage$/i.test(name)) return { label: 'Linux (AppImage)', icon: 'terminal' as const };
+  if (/\.deb$/i.test(name)) return { label: 'Linux (Debian)', icon: 'terminal' as const };
+  if (/\.rpm$/i.test(name)) return { label: 'Linux (RPM)', icon: 'terminal' as const };
+  return { label: 'Other', icon: 'package' as const };
 };
 
 const published = release ? new Date(release.published_at).toLocaleDateString() : null;
@@ -49,7 +50,7 @@ const published = release ? new Date(release.published_at).toLocaleDateString() 
   <article class="wrap container section">
     <header class="page-head">
       <span class="hig-label">Download</span>
-      <h1>Get SyncSpeak.</h1>
+      <h1>Get Sync Speak.</h1>
       <p class="lede">
         Free forever. Open-source. Your microphone stays on your machine.
       </p>
@@ -74,7 +75,7 @@ const published = release ? new Date(release.published_at).toLocaleDateString() 
               const p = platformOf(a.name);
               return (
                 <li class="glass-card asset">
-                  <span class="asset-icon" aria-hidden="true">{p.icon}</span>
+                  <span class="asset-icon"><Icon name={p.icon} size={20} /></span>
                   <div class="asset-meta">
                     <span class="asset-platform">{p.label}</span>
                     <code class="asset-name">{a.name}</code>
@@ -109,8 +110,8 @@ const published = release ? new Date(release.published_at).toLocaleDateString() 
         <dd>glibc 2.31+, webkit2gtk-4.1, PulseAudio or PipeWire</dd>
         <dt>API keys</dt>
         <dd>
-          Free <a href="https://sarvam.ai" target="_blank" rel="noopener">Sarvam AI</a>
-          and <a href="https://groq.com" target="_blank" rel="noopener">Groq</a> keys.
+          Free <a href="https://dashboard.sarvam.ai/login?return_to=%2F" target="_blank" rel="noopener" class="api-link">Sarvam AI →</a>
+          and <a href="https://console.groq.com/home" target="_blank" rel="noopener" class="api-link">Groq →</a> keys.
           Entered once in Settings, stored locally.
         </dd>
       </dl>
@@ -157,7 +158,17 @@ npm run dev</code></pre>
     align-items: center;
     padding: var(--space-m) var(--space-l);
   }
-  .asset-icon { font-size: 1.5rem; }
+  .asset-icon {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-s);
+    background: var(--glass-panel);
+    border: 1px solid var(--border-glass);
+    color: var(--vibrant-primary);
+  }
   .asset-platform { font-weight: 600; display: block; }
   .asset-name { font-size: 0.8125rem; color: var(--vibrant-secondary); }
   .asset-size {
@@ -181,6 +192,17 @@ npm run dev</code></pre>
   }
   .req dt { font-weight: 600; color: var(--vibrant-primary); }
   .req dd { color: var(--vibrant-label); }
+  .api-link {
+    color: var(--accent-blue);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(10, 132, 255, 0.3);
+    padding-bottom: 1px;
+    transition: var(--liquid-morph);
+  }
+  .api-link:hover {
+    color: var(--vibrant-primary);
+    border-bottom-color: var(--vibrant-primary);
+  }
 
   .alt h2 { margin-bottom: var(--space-m); }
   .alt pre {
