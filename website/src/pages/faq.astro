@@ -1,0 +1,147 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'FAQ — Sync Speak';
+const description =
+  'Answers to common questions about Sync Speak: how it works, what it costs, what data leaves your machine, which meeting apps it supports, and how accurate the translation is.';
+
+const faqs = [
+  {
+    q: 'What is Sync Speak?',
+    a:
+      'Sync Speak is a free, open-source desktop app that listens to your Hindi voice, translates it into English in real time, and plays the English back into your meeting app (Google Meet, Zoom, Teams, Discord, and others) as if you were speaking English directly.',
+  },
+  {
+    q: 'How much does Sync Speak cost?',
+    a:
+      'The app itself is free and MIT-licensed. You supply your own free API keys for Sarvam AI (speech-to-text and text-to-speech) and Groq (translation). Both providers offer generous free tiers that are sufficient for regular meeting use.',
+  },
+  {
+    q: 'Does my voice leave my machine?',
+    a:
+      'Only audio snippets are sent to Sarvam and Groq for transcription, translation, and synthesis — exactly the same trust boundary as any cloud voice service. Sync Speak itself has no servers; nothing is uploaded to us. API keys stay in a local config file on your computer.',
+  },
+  {
+    q: 'Which meeting apps are supported?',
+    a:
+      'Any application that accepts a microphone input: Google Meet, Zoom, Microsoft Teams, Discord, Slack huddles, Whereby, Gather, Riverside, and more. Sync Speak uses VB-Cable to expose the translated audio as a virtual microphone, which the meeting app then selects like any normal mic.',
+  },
+  {
+    q: 'What is the translation latency?',
+    a:
+      'End-to-end perceived latency is typically between 800 ms and 1.2 s on office fibre. The key optimisation is sentence-pipelined TTS: playback of sentence one starts while sentence two is still being synthesised.',
+  },
+  {
+    q: 'How accurate is the translation?',
+    a:
+      'Highly accurate for business Hindi, Hinglish, and code-mixed speech. Sarvam Saarika v2.5 handles code-mixing natively, Groq Llama 3.3 70B maintains context across your last five utterances, and a correction table catches common phonetic mis-mappings before translation.',
+  },
+  {
+    q: 'What about self-talk loops? Won’t the translated English be re-captured?',
+    a:
+      'No. An internal flag blocks the microphone input while Sync Speak is speaking English. VAD state is reset cleanly between utterances so no partial TTS audio bleeds into the next Hindi capture.',
+  },
+  {
+    q: 'Can I use it on macOS or Linux?',
+    a:
+      'Yes. Builds are published for Windows (.exe), macOS (.dmg), and Linux (.AppImage and .deb) via GitHub Releases. The download button auto-detects your OS and points at the correct asset.',
+  },
+  {
+    q: 'Can I add a new language?',
+    a:
+      'Yes — Sync Speak is open-source. The pipeline is language-agnostic; the only components that need changing are the STT model selection and the translation prompt. Contributions for Tamil, Bengali, Marathi, and others are explicitly welcomed. See the Developers page.',
+  },
+  {
+    q: 'Why not use an Electron app?',
+    a:
+      'Electron ships a full Chromium runtime per app (~150 MB idle). Sync Speak uses Tauri v2, which uses the OS-native web view — the binary is ~15 MB, the memory footprint is a fraction, and startup is instant.',
+  },
+  {
+    q: 'Where do I report a bug or request a feature?',
+    a:
+      'On GitHub Issues. The repo has bug and feature templates. For security issues, please use the Discord DM channel listed in SECURITY.md rather than a public issue.',
+  },
+  {
+    q: 'Can I self-host the entire pipeline?',
+    a:
+      'Not out of the box — Sync Speak uses Sarvam and Groq because they’re the fastest Hindi-capable options today. That said, swapping either is a single-file change: the providers are isolated behind a thin wrapper in python/translator.py.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: f.a,
+    },
+  })),
+};
+---
+
+<BaseLayout title={title} description={description}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+
+  <article class="wrap container section">
+    <header class="page-head">
+      <span class="hig-label">FAQ</span>
+      <h1>Questions people actually ask.</h1>
+    </header>
+
+    <div class="faq-list">
+      {
+        faqs.map((f, i) => (
+          <details class="glass-card faq-item" open={i < 2}>
+            <summary>
+              <h2>{f.q}</h2>
+              <span class="chev" aria-hidden="true">+</span>
+            </summary>
+            <p>{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 800px; }
+  .page-head { text-align: center; margin-bottom: var(--space-2xl); }
+  .page-head h1 { margin-top: var(--space-m); }
+
+  .faq-list { display: grid; gap: var(--space-s); }
+  .faq-item {
+    padding: 0;
+    overflow: hidden;
+  }
+  .faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-m);
+    padding: var(--space-l) var(--space-xl);
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item h2 {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  .chev {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--vibrant-secondary);
+    transition: var(--liquid-morph);
+  }
+  .faq-item[open] .chev { transform: rotate(45deg); color: var(--accent-blue); }
+  .faq-item p {
+    padding: 0 var(--space-xl) var(--space-l);
+    color: var(--vibrant-label);
+    line-height: 1.6;
+  }
+</style>

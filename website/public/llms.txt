@@ -1,0 +1,19 @@
+# SyncSpeak
+
+> SyncSpeak is a free, open-source desktop application that translates your Hindi speech into English in real time during video meetings (Google Meet, Zoom, Microsoft Teams, Discord, and others). It captures your voice locally, uses Sarvam Saarika v2.5 for Hindi speech-to-text, Groq Llama 3.3 70B for translation with 5-utterance rolling context, and Sarvam Bulbul v3 for English text-to-speech synthesis. The translated audio is routed into meeting apps through a virtual microphone (VB-Cable). End-to-end perceived latency is typically 800 ms to 1.2 s. MIT-licensed, Tauri v2 native desktop shell with Liquid Glass design.
+
+## Core pages
+
+- [Home](https://syncspeak.pages.dev/): Product overview, live demo, and primary download call-to-action.
+- [Features](https://syncspeak.pages.dev/features): Detailed list of every capability — neural VAD, Hinglish support, context-aware translation, sentence-pipelined TTS, VB-Cable routing, self-talk prevention, device resilience.
+- [How it works](https://syncspeak.pages.dev/how-it-works): Seven-stage pipeline walkthrough (microphone → VAD → Saarika STT → Groq LLM → Bulbul TTS → VB-Cable → meeting) with latency budget.
+- [Download](https://syncspeak.pages.dev/download): Latest release for Windows, macOS, and Linux, fetched from GitHub Releases. System requirements.
+- [Developers](https://syncspeak.pages.dev/developers): Architecture, tech stack, contribution workflow, first-issue picks.
+- [Docs](https://syncspeak.pages.dev/docs): Technical documentation index — architecture, pipeline, API reference, setup, design system.
+- [FAQ](https://syncspeak.pages.dev/faq): Common questions — cost, privacy, supported meeting apps, accuracy, latency, self-talk, languages, platforms.
+- [Privacy](https://syncspeak.pages.dev/privacy): Full data-handling policy. No servers, no analytics, no telemetry. Audio sent only to Sarvam and Groq for transcription/translation/synthesis.
+
+## Optional
+
+- [GitHub repository](https://github.com/Soumyadipgithub/SyncSpeak): Source code, issues, releases, contribution guide.
+- [llms-full.txt](https://syncspeak.pages.dev/llms-full.txt): Full plain-text dump of every page for ingestion without crawling.

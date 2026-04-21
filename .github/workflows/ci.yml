@@ -129,3 +129,99 @@ jobs:
       - name: cargo check
         run: cargo check
         working-directory: src-tauri
+
+  # ── Job 5: Website build ─────────────────────────────────────────────────────
+  # Builds the Astro marketing site in /website. Fails fast if a page breaks.
+  website-build:
+    name: Website Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install website dependencies
+        run: npm ci
+        working-directory: website
+
+      - name: Astro build
+        run: npm run build
+        working-directory: website
+
+  # ── Job 6: Asset health check ────────────────────────────────────────────────
+  # Blocks pushes that contain files over 5 MB or accidentally committed .env files.
+  # Also warns on files over 500 KB so the team stays conscious of bundle size.
+  asset-health:
+    name: Asset Health Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so the secret scan can diff against the PR base, not just HEAD~1.
+          fetch-depth: 0
+
+      - name: Check for .env files
+        run: |
+          ENV_FILES=$(find . -not -path './.git/*' -not -path '*/node_modules/*' \
+            \( -name '.env' -o -name '.env.local' -o -name '.env.production' \) \
+            | grep -vF '.env.example' || true)
+          if [ -n "$ENV_FILES" ]; then
+            echo "❌ .env file committed:"
+            echo "$ENV_FILES"
+            exit 1
+          fi
+          echo "✅ No .env files found"
+
+      - name: Check for files over 5 MB (hard block)
+        run: |
+          LARGE=$(find . -not -path './.git/*' -not -path '*/node_modules/*' \
+            -not -path '*/target/*' -not -path '*/dist/*' \
+            -type f -size +5M 2>/dev/null || true)
+          if [ -n "$LARGE" ]; then
+            echo "❌ Files over 5 MB — remove or compress before merging:"
+            du -h $LARGE
+            exit 1
+          fi
+          echo "✅ No files over 5 MB"
+
+      - name: Warn on files over 500 KB
+        run: |
+          WARN=$(find . -not -path './.git/*' -not -path '*/node_modules/*' \
+            -not -path '*/target/*' -not -path '*/dist/*' \
+            -type f -size +500k 2>/dev/null || true)
+          if [ -n "$WARN" ]; then
+            echo "⚠️  Files over 500 KB (consider compressing):"
+            du -h $WARN
+          else
+            echo "✅ All assets within recommended size"
+          fi
+
+      - name: Scan for accidental secrets
+        run: |
+          # On pull_request, diff against the PR base so ALL commits in the PR are scanned.
+          # On push, fall back to the previous commit.
+          BASE="${{ github.event.pull_request.base.sha }}"
+          if [ -z "$BASE" ]; then
+            BASE="HEAD~1"
+          fi
+          CHANGED=$(git diff --name-only "$BASE"...HEAD 2>/dev/null \
+            | grep -v node_modules | grep -v '.git' | grep -v 'package-lock.json' || true)
+          SECRET_FOUND=0
+          if [ -n "$CHANGED" ]; then
+            while IFS= read -r file; do
+              if [ -f "$file" ]; then
+                if grep -qiE "(sk-[a-zA-Z0-9]{20,}|api[_-]?key\s*=\s*['\"][^'\"]{8,}|secret[_-]?key\s*=\s*['\"][^'\"]{8,})" "$file" 2>/dev/null; then
+                  echo "❌ Possible secret in: $file"
+                  SECRET_FOUND=1
+                fi
+              fi
+            done <<< "$CHANGED"
+          fi
+          if [ "$SECRET_FOUND" -eq 1 ]; then
+            exit 1
+          fi
+          echo "✅ No secrets detected"

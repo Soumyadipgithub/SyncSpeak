@@ -1,0 +1,238 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+
+const title = 'Developers — Sync Speak';
+const description =
+  'Sync Speak is open-source under MIT. Three-tier architecture: Rust (Tauri shell), React (UI), Python (audio sidecar). Contribution guide, architecture docs, and first-issue picks.';
+
+const stack = [
+  { label: 'Shell', tech: 'Tauri v2 (Rust)', role: 'Native window, IPC bridge, history/config storage' },
+  { label: 'UI', tech: 'React 19 + TypeScript + Zustand', role: 'Pages, state, Liquid Glass design system' },
+  { label: 'Build', tech: 'Vite 6', role: 'Frontend bundling, HMR, TS strict' },
+  { label: 'Sidecar', tech: 'Python 3.11 + sounddevice', role: 'Audio capture, pipeline orchestration' },
+  { label: 'STT', tech: 'Sarvam Saarika v2.5', role: 'Hindi/Hinglish speech to text' },
+  { label: 'LLM', tech: 'Groq Llama 3.3 70B', role: 'Translation with 5-utterance context' },
+  { label: 'TTS', tech: 'Sarvam Bulbul v3', role: 'English speech synthesis, sentence-pipelined' },
+  { label: 'VAD', tech: 'webrtcvad (Google Neural VAD)', role: 'Speech/silence detection' },
+];
+
+const firstIssues = [
+  'Add a new Bulbul voice preset',
+  'Refine a Hinglish correction in the table',
+  'Improve a docs page for clarity',
+  'Add a new language (Tamil, Bengali, Marathi) to the STT step',
+  'Add a Lighthouse CI check for this website',
+];
+---
+
+<BaseLayout title={title} description={description}>
+  <article class="wrap container section">
+    <header class="page-head">
+      <span class="hig-label">Developers</span>
+      <h1>Open-source. Opinionated. Welcoming.</h1>
+      <p class="lede">
+        Sync Speak is MIT-licensed and actively developed. The codebase is small, the
+        pipeline is documented end-to-end, and the contribution workflow is boringly
+        professional on purpose — branch protection, issue-driven branches, CI on every PR.
+      </p>
+      <div class="cta-row">
+        <a
+          href="https://github.com/Soumyadipgithub/SyncSpeak"
+          class="gradient-btn star-btn"
+          target="_blank"
+          rel="noopener"
+        >
+          <Icon name="star" size={16} />
+          Star on GitHub
+        </a>
+        <a
+          href="https://github.com/Soumyadipgithub/SyncSpeak/blob/main/CONTRIBUTING.md"
+          class="ghost-btn"
+          target="_blank"
+          rel="noopener"
+        >
+          Contributing guide
+        </a>
+      </div>
+    </header>
+
+    <section class="arch">
+      <h2>Three-tier architecture</h2>
+      <div class="tiers">
+        <article class="glass-card tier">
+          <span class="tier-n">Tier 1</span>
+          <h3>Shell (Rust, Tauri v2)</h3>
+          <p>
+            Native window with transparency, IPC bridge to the UI, persistent history and
+            config storage. Code at <code>src-tauri/</code>.
+          </p>
+        </article>
+        <article class="glass-card tier">
+          <span class="tier-n">Tier 2</span>
+          <h3>UI (React 19, TypeScript, Zustand)</h3>
+          <p>
+            TranslatePage, HistoryPage, VoicesPage, GuidePage, Settings modal. Liquid Glass
+            CSS design system. No Tailwind. Code at <code>src/renderer/</code>.
+          </p>
+        </article>
+        <article class="glass-card tier">
+          <span class="tier-n">Tier 3</span>
+          <h3>Audio sidecar (Python)</h3>
+          <p>
+            Command loop, VAD, pipeline orchestration, Sarvam and Groq API wrappers. Code
+            at <code>python/</code>.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="stack">
+      <h2>Tech stack</h2>
+      <ul class="stack-list" role="list">
+        {
+          stack.map((s) => (
+            <li class="glass-card stack-row">
+              <span class="stack-label">{s.label}</span>
+              <span class="stack-tech">{s.tech}</span>
+              <span class="stack-role">{s.role}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="workflow">
+      <h2>Contribution workflow</h2>
+      <ol role="list" class="steps">
+        <li>
+          <strong>Open an issue first.</strong> Every branch is issue-driven. Use the bug
+          report or feature request template.
+        </li>
+        <li>
+          <strong>Branch from <code>develop</code>.</strong> Naming is enforced by CI:
+          <code>&lt;type&gt;/issue-&lt;n&gt;-&lt;desc&gt;</code> where <code>type</code> ∈
+          <code>feat · fix · docs · refactor · chore · hotfix</code>.
+        </li>
+        <li>
+          <strong>Commit in the project style.</strong>
+          <code>&lt;type&gt;: &lt;imperative subject&gt;</code>. One logical change per
+          commit.
+        </li>
+        <li>
+          <strong>Open a PR against <code>develop</code>.</strong> CI runs branch-name,
+          Python, TypeScript, Rust, and website-build checks.
+        </li>
+        <li>
+          <strong>Maintainer reviews &amp; merges.</strong> Production promotion happens
+          via a separate <code>develop → main</code> PR.
+        </li>
+      </ol>
+    </section>
+
+    <section class="first-issues glass-card">
+      <h2>Good first issues</h2>
+      <ul role="list">
+        {firstIssues.map((t) => <li>{t}</li>)}
+      </ul>
+      <a
+        href="https://github.com/Soumyadipgithub/SyncSpeak/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22"
+        class="ghost-btn"
+        target="_blank"
+        rel="noopener"
+      >
+        Browse open issues →
+      </a>
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 1000px; }
+  .page-head { text-align: center; margin-bottom: var(--space-3xl); }
+  .page-head h1 { margin: var(--space-m) 0 var(--space-l); }
+  .lede {
+    max-width: 64ch;
+    margin: 0 auto var(--space-xl);
+    font-size: 1.125rem;
+    color: var(--vibrant-label);
+  }
+  .cta-row { display: flex; gap: var(--space-m); justify-content: center; flex-wrap: wrap; }
+  .star-btn { display: inline-flex; align-items: center; gap: 8px; }
+  .star-btn :global(svg) { transition: transform 300ms var(--liquid-morph); }
+  .star-btn:hover :global(svg) { transform: rotate(-12deg) scale(1.1); }
+
+  section { margin-bottom: var(--space-3xl); }
+  section h2 { margin-bottom: var(--space-l); }
+
+  .tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-l); }
+  .tier { padding: var(--space-xl); }
+  .tier-n {
+    display: inline-block;
+    margin-bottom: var(--space-s);
+    padding: 2px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--glass-panel);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent-blue);
+  }
+  .tier h3 { margin-bottom: var(--space-s); font-size: 1.125rem; }
+
+  .stack-list { list-style: none; display: grid; gap: var(--space-s); }
+  .stack-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 1.5fr;
+    gap: var(--space-l);
+    padding: var(--space-m) var(--space-l);
+    align-items: center;
+  }
+  .stack-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent-blue);
+  }
+  .stack-tech { font-weight: 600; }
+  .stack-role { color: var(--vibrant-label); font-size: 0.9375rem; }
+
+  .steps {
+    padding-left: var(--space-l);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    color: var(--vibrant-label);
+  }
+  .steps strong { color: var(--vibrant-primary); }
+
+  .first-issues {
+    padding: var(--space-xl);
+  }
+  .first-issues ul {
+    list-style: none;
+    display: grid;
+    gap: var(--space-s);
+    margin-bottom: var(--space-l);
+  }
+  .first-issues li {
+    padding-left: var(--space-m);
+    position: relative;
+    color: var(--vibrant-label);
+  }
+  .first-issues li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent-blue);
+  }
+
+  @media (max-width: 640px) {
+    .stack-row { grid-template-columns: 1fr; gap: var(--space-xs); padding: var(--space-m); }
+    .page-head { margin-bottom: var(--space-2xl); }
+    .lede { font-size: 1rem; }
+    .cta-row { gap: var(--space-s); }
+    .first-issues { padding: var(--space-l); }
+    .tier { padding: var(--space-l); }
+  }
+</style>

@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="404 — Sync Speak"
+  description="The page you were looking for doesn't exist."
+  noindex
+>
+  <section class="wrap container section">
+    <div class="glass-card panel">
+      <span class="hig-label">404</span>
+      <h1>This page is silent.</h1>
+      <p>No translation here. The page you were looking for doesn't exist.</p>
+      <div class="ctas">
+        <a href="/" class="gradient-btn">Back home</a>
+        <a href="/docs" class="ghost-btn">Read the docs</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 640px; }
+  .panel {
+    padding: var(--space-3xl);
+    text-align: center;
+  }
+  .panel h1 { margin: var(--space-m) 0 var(--space-m); }
+  .panel p { margin-bottom: var(--space-xl); font-size: 1.125rem; }
+  .ctas {
+    display: flex;
+    gap: var(--space-m);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>
