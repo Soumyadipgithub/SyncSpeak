@@ -20,4 +20,4 @@ Allow: /
 User-agent: DuckDuckBot
 Allow: /
 
-Sitemap: https://syncspeak.pages.dev/sitemap-index.xml
+Sitemap: https://syncspeak.soumg.workers.dev/sitemap-index.xml

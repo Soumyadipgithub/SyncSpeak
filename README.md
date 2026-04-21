@@ -1,4 +1,4 @@
-# SyncSpeak
+# Sync Speak
 
 > Real-time Hindi → English voice translator for corporate meetings.  
 > Speak Hindi. Your colleagues hear English. Instantly.
@@ -11,7 +11,7 @@
 
 ## What does it do?
 
-You speak Hindi into your mic. SyncSpeak translates it to English and plays it through a virtual audio cable — so everyone in your Google Meet / Zoom hears natural English in real time.
+You speak Hindi into your mic. Sync Speak translates it to English and plays it through a virtual audio cable — so everyone in your Google Meet / Zoom hears natural English in real time.
 
 ---
 
@@ -95,7 +95,7 @@ SyncSpeak/
 │   ├── pages/             # TranslatePage, HistoryPage, VoicesPage
 │   └── components/        # TitleBar, TabBar, LiquidTerminal
 ├── src-tauri/             # Rust / Tauri v2 shell
-├── website/               # Marketing site (Astro) — syncspeak.pages.dev
+├── website/               # Marketing site (Astro) — syncspeak.soumg.workers.dev
 └── docs/                  # Technical documentation
 ```
 
@@ -154,7 +154,7 @@ To report a security vulnerability, see [SECURITY.md](SECURITY.md).
 ## Website
 
 The marketing site lives in [`website/`](website/) and is built with Astro.
-It deploys to [syncspeak.pages.dev](https://syncspeak.pages.dev) (Cloudflare
+It deploys to [syncspeak.soumg.workers.dev](https://syncspeak.soumg.workers.dev) (Cloudflare
 Pages) on every push to `main`. See [`website/README.md`](website/README.md)
 for local-dev commands.
 
