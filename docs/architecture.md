@@ -183,7 +183,7 @@ SyncSpeak/
 │   │   └── feature_request.md   ← Structured feature request form
 │   └── PULL_REQUEST_TEMPLATE.md ← PR checklist (enforces CLAUDE.md rules)
 │
-├── package.json                 ← Node project config (version: 2.0.0)
+├── package.json                 ← Node project config (version: 3.0.0)
 ├── vite.config.ts               ← Vite bundler config
 ├── tsconfig.json                ← TypeScript config
 ├── requirements.txt             ← Python dependencies
