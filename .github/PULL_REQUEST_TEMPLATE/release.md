@@ -44,7 +44,7 @@
 - [ ] Tested website preview URL (copy from Version History) — all 9 pages load
 - [ ] No personal data / credentials / TODOs leaked in the diff
 - [ ] No file over 5 MB in the diff
-- [ ] All 5 CI jobs pass (branch-name skipped intentionally for develop→main)
+- [ ] All required CI jobs pass (branch-name skipped intentionally for develop→main)
 - [ ] Sitemap still lists all pages correctly
 - [ ] Links in README and docs still valid
 

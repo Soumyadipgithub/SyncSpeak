@@ -155,7 +155,7 @@ To report a security vulnerability, see [SECURITY.md](SECURITY.md).
 
 The marketing site lives in [`website/`](website/) and is built with Astro.
 It deploys to [syncspeak.soumg.workers.dev](https://syncspeak.soumg.workers.dev) (Cloudflare
-Pages) on every push to `main`. See [`website/README.md`](website/README.md)
+Workers) on every push to `main`. See [`website/README.md`](website/README.md)
 for local-dev commands.
 
 ---
