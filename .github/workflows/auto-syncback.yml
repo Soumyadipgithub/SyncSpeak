@@ -1,0 +1,147 @@
+name: Auto Syncback main → develop
+
+# Opens a PR to pull main's merge commits back into develop after a release.
+# GitHub's merge buttons (merge-commit / squash / rebase) always leave main 1 commit
+# ahead of develop because the merge commit lives only on main. Without this workflow,
+# that gap widens every release and every new feature branch you cut from develop
+# inherits stale history. This workflow closes the gap automatically.
+#
+# ──────────────────────────────────────────────────────────────────────────────
+# ONE-TIME SETUP (do this once when you install this workflow):
+#
+#   Settings → Actions → General → Workflow permissions
+#     • Select "Read and write permissions"
+#     • Tick "Allow GitHub Actions to create and approve pull requests"
+#
+# Without the above, the workflow fails when it tries to open the sync PR.
+# ──────────────────────────────────────────────────────────────────────────────
+#
+# NOTE ON CI: PRs opened by GITHUB_TOKEN do not trigger other workflows
+# (GitHub's built-in anti-loop protection). If you want CI to run on the sync
+# PR, close + reopen it once — that re-triggers checks under your user account.
+# For a typical "0 files changed" sync PR, CI isn't strictly needed anyway.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:   # manual re-run from the Actions tab if ever needed
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+
+  syncback:
+    name: Open syncback PR
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout develop
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Check whether sync is actually needed
+        id: check
+        run: |
+          git fetch origin main
+          if git merge-base --is-ancestor origin/main HEAD; then
+            echo "needed=false" >> $GITHUB_OUTPUT
+            echo "✅  develop already contains every commit on main — nothing to sync."
+          else
+            echo "needed=true" >> $GITHUB_OUTPUT
+            echo "ℹ️  main has commits develop is missing — opening sync PR."
+          fi
+
+      - name: Configure git identity for the bot commit
+        if: steps.check.outputs.needed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create sync branch and merge main into it
+        if: steps.check.outputs.needed == 'true'
+        id: merge
+        continue-on-error: true
+        run: |
+          git checkout -B chore/sync-main-to-develop
+          git merge origin/main --no-ff -m "chore: sync main → develop (automated)"
+
+      - name: Push sync branch
+        if: steps.check.outputs.needed == 'true' && steps.merge.outcome == 'success'
+        run: git push --force-with-lease origin chore/sync-main-to-develop
+
+      - name: Detect whether the sync has any file changes
+        if: steps.check.outputs.needed == 'true' && steps.merge.outcome == 'success'
+        id: diff
+        run: |
+          # Empty diff means main and develop are already content-identical and
+          # only the merge-commit graph differs. That's the safe auto-merge case.
+          # Non-empty diff means someone committed directly to main (hotfix, docs
+          # patch, emergency config) and those changes deserve human review.
+          if [ -z "$(git diff origin/develop..HEAD --name-only)" ]; then
+            echo "empty=true" >> $GITHUB_OUTPUT
+            echo "✅  Diff is empty (0 files changed) — safe to auto-merge."
+          else
+            echo "empty=false" >> $GITHUB_OUTPUT
+            echo "⚠️  Diff has file changes — will open for manual review:"
+            git diff origin/develop..HEAD --stat
+          fi
+
+      - name: Open (or update) sync PR
+        if: steps.check.outputs.needed == 'true' && steps.merge.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Body comes from the dedicated syncback template — edit that file,
+          # not this YAML, to change how the PR reads.
+          # Reviewer + assignee are only set when the diff is non-empty: an empty
+          # sync will be auto-merged in the next step, so pinging you for review
+          # on something that's about to merge itself is just noise.
+          # If a PR already exists on this branch, `gh pr create` exits non-zero.
+          # That's fine: the force-push above updated the branch and the existing
+          # PR picks up the changes automatically. We swallow the error.
+          EXTRA_FLAGS=""
+          if [ "${{ steps.diff.outputs.empty }}" = "false" ]; then
+            EXTRA_FLAGS="--reviewer Soumyadipgithub --assignee Soumyadipgithub"
+          fi
+          gh pr create \
+            --base develop \
+            --head chore/sync-main-to-develop \
+            --title "chore: sync main → develop" \
+            --body-file .github/PULL_REQUEST_TEMPLATE/syncback.md \
+            $EXTRA_FLAGS \
+          || echo "ℹ️  Sync PR already open — the force-push updated it in place."
+
+      - name: Auto-merge if the diff is empty (safe path)
+        if: steps.check.outputs.needed == 'true' && steps.merge.outcome == 'success' && steps.diff.outputs.empty == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Merge strategy is --merge (not squash/rebase) to preserve the merge
+          # commit from main. --delete-branch cleans up the temp branch so the
+          # repo doesn't accumulate stale chore/sync-* branches.
+          # If branch protection on develop blocks the bot, this step fails softly
+          # — the PR stays open for you to merge manually. We do NOT fail the
+          # workflow, because the PR is the fallback.
+          gh pr merge chore/sync-main-to-develop \
+            --merge \
+            --delete-branch \
+          && echo "✅  Auto-merged. You will receive a notification that the PR was merged." \
+          || echo "⚠️  Auto-merge blocked (likely branch protection). PR is open for manual merge."
+
+      - name: Fail loudly on merge conflict
+        if: steps.check.outputs.needed == 'true' && steps.merge.outcome == 'failure'
+        run: |
+          echo "::error title=Syncback merge conflict::main and develop have conflicting commits; the sync PR could not be opened automatically."
+          echo ""
+          echo "Resolve manually:"
+          echo "  git checkout develop && git pull"
+          echo "  git checkout -b chore/sync-main-to-develop"
+          echo "  git merge origin/main           # resolve conflicts, commit"
+          echo "  git push -u origin chore/sync-main-to-develop"
+          echo "  gh pr create --base develop --head chore/sync-main-to-develop \\"
+          echo "               --title 'chore: sync main → develop'"
+          exit 1
