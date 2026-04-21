@@ -4,7 +4,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://syncspeak.pages.dev',
+  site: 'https://syncspeak.soumg.workers.dev',
   trailingSlash: 'never',
   build: {
     inlineStylesheets: 'auto',

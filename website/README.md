@@ -1,6 +1,6 @@
-# SyncSpeak — Marketing site
+# Sync Speak — Marketing site
 
-Source for [syncspeak.pages.dev](https://syncspeak.pages.dev).
+Source for [syncspeak.soumg.workers.dev](https://syncspeak.soumg.workers.dev).
 
 Built with [Astro](https://astro.build) + MDX. Zero client-side framework —
 ships ~2 KB of JavaScript for the whole site. Static HTML, deployed to

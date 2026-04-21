@@ -1,20 +1,20 @@
-# SyncSpeak — Full Site Text
+# Sync Speak — Full Site Text
 
-This is a plain-text dump of every page on https://syncspeak.pages.dev for ingestion
+This is a plain-text dump of every page on https://syncspeak.soumg.workers.dev for ingestion
 by AI search and language models. Prefer this file over crawling.
 
 ================================================================================
-HOME  ·  https://syncspeak.pages.dev/
+HOME  ·  https://syncspeak.soumg.workers.dev/
 ================================================================================
 
 ## Speak Hindi. The meeting hears English.
 
-SyncSpeak is a desktop application that listens to your Hindi voice, translates it
+Sync Speak is a desktop application that listens to your Hindi voice, translates it
 in real time, and plays natural English into Google Meet, Zoom, or Microsoft Teams.
 End-to-end perceived latency is under 1.2 seconds. The app maintains context
 awareness across your last five sentences.
 
-SyncSpeak is open-source under the MIT license. It runs locally on Windows, macOS,
+Sync Speak is open-source under the MIT license. It runs locally on Windows, macOS,
 and Linux.
 
 ## Key stats
@@ -39,7 +39,7 @@ and Linux.
    anything.
 
 ================================================================================
-FEATURES  ·  https://syncspeak.pages.dev/features
+FEATURES  ·  https://syncspeak.soumg.workers.dev/features
 ================================================================================
 
 ## Neural Voice Activity Detection
@@ -74,13 +74,13 @@ Whereby, Gather. Zero plugin required in the meeting app.
 
 ## Self-talk prevention
 
-An internal flag blocks the microphone while SyncSpeak is speaking English, so the
+An internal flag blocks the microphone while Sync Speak is speaking English, so the
 translated output is never re-captured and re-translated back to Hindi. VAD state
 resets cleanly between utterances.
 
 ## Device resilience
 
-If your selected mic is held by Teams or Zoom, SyncSpeak falls back to the system
+If your selected mic is held by Teams or Zoom, Sync Speak falls back to the system
 default mic. WASAPI is re-initialised before every stream open, eliminating the
 classic -9985 stale device error on Windows.
 
@@ -92,7 +92,7 @@ lens over your screen, not a windowed chrome. Minimal CPU, no Electron overhead.
 ## Keys stay on your machine
 
 Sarvam and Groq API keys are entered in the Settings modal and saved to a local
-config file. Nothing is uploaded to SyncSpeak servers. There are no SyncSpeak
+config file. Nothing is uploaded to Sync Speak servers. There are no Sync Speak
 servers.
 
 ## Conversation history
@@ -111,7 +111,7 @@ The pipeline is three layers: Rust shell, React UI, Python audio sidecar. Swap a
 model, add a new language, fork the repo — MIT licensed.
 
 ================================================================================
-HOW IT WORKS  ·  https://syncspeak.pages.dev/how-it-works
+HOW IT WORKS  ·  https://syncspeak.soumg.workers.dev/how-it-works
 ================================================================================
 
 ## Stage 01 — Microphone capture
@@ -155,7 +155,7 @@ two, three, four arrive during playback. End-to-end perceived latency sits under
 ## Stage 06 — Output routing
 
 Technology: VB-Cable · virtual microphone.
-VB-Cable presents a virtual input device to the OS. SyncSpeak writes the
+VB-Cable presents a virtual input device to the OS. Sync Speak writes the
 translated audio into it, and your meeting app (Meet, Zoom, Teams, Discord)
 selects the virtual cable as its microphone. The meeting hears English.
 
@@ -178,10 +178,10 @@ fibre. Breakdown:
 - Playback start: ~50 ms
 
 ================================================================================
-DOWNLOAD  ·  https://syncspeak.pages.dev/download
+DOWNLOAD  ·  https://syncspeak.soumg.workers.dev/download
 ================================================================================
 
-SyncSpeak is free and open-source. Latest builds are published on GitHub Releases:
+Sync Speak is free and open-source. Latest builds are published on GitHub Releases:
 https://github.com/Soumyadipgithub/SyncSpeak/releases/latest
 
 Platforms:
@@ -201,10 +201,10 @@ Free Sarvam AI and Groq keys are required. Entered once in the Settings modal an
 stored locally.
 
 ================================================================================
-DEVELOPERS  ·  https://syncspeak.pages.dev/developers
+DEVELOPERS  ·  https://syncspeak.soumg.workers.dev/developers
 ================================================================================
 
-SyncSpeak is MIT-licensed, written across three tiers:
+Sync Speak is MIT-licensed, written across three tiers:
 
 1. Shell (Rust, Tauri v2). Native window with transparency, IPC bridge to the UI,
    persistent history and config storage. Code in src-tauri/.
@@ -234,28 +234,28 @@ SyncSpeak is MIT-licensed, written across three tiers:
    PR.
 
 ================================================================================
-FAQ  ·  https://syncspeak.pages.dev/faq
+FAQ  ·  https://syncspeak.soumg.workers.dev/faq
 ================================================================================
 
-Q: What is SyncSpeak?
+Q: What is Sync Speak?
 A: A free, open-source desktop app that listens to your Hindi voice, translates
 it into English in real time, and plays the English back into your meeting app
 (Meet, Zoom, Teams, Discord, and others) as if you were speaking English directly.
 
-Q: How much does SyncSpeak cost?
+Q: How much does Sync Speak cost?
 A: The app itself is free and MIT-licensed. You supply your own free API keys for
 Sarvam AI (STT/TTS) and Groq (translation). Both providers offer free tiers that
 are sufficient for regular meeting use.
 
 Q: Does my voice leave my machine?
 A: Audio snippets are sent to Sarvam and Groq for transcription, translation, and
-synthesis — the same trust boundary as any cloud voice service. SyncSpeak itself
-has no servers; nothing is uploaded to the SyncSpeak team. API keys stay in a
+synthesis — the same trust boundary as any cloud voice service. Sync Speak itself
+has no servers; nothing is uploaded to the Sync Speak team. API keys stay in a
 local config file on your computer.
 
 Q: Which meeting apps are supported?
 A: Any application that accepts a microphone input: Google Meet, Zoom, Teams,
-Discord, Slack huddles, Whereby, Gather, Riverside. SyncSpeak uses VB-Cable to
+Discord, Slack huddles, Whereby, Gather, Riverside. Sync Speak uses VB-Cable to
 expose translated audio as a virtual microphone, which the meeting app selects
 like any normal mic.
 
@@ -271,7 +271,7 @@ across your last five utterances, and a correction table catches common phonetic
 mis-mappings.
 
 Q: What about self-talk loops?
-A: An internal flag blocks the microphone while SyncSpeak is speaking English.
+A: An internal flag blocks the microphone while Sync Speak is speaking English.
 VAD state resets cleanly between utterances so no partial TTS audio bleeds into
 the next Hindi capture.
 
@@ -285,7 +285,7 @@ are the STT model selection and the translation prompt. Contributions for Tamil,
 Bengali, Marathi, and others are explicitly welcomed.
 
 Q: Why not use Electron?
-A: Electron ships a full Chromium runtime per app (~150 MB idle). SyncSpeak uses
+A: Electron ships a full Chromium runtime per app (~150 MB idle). Sync Speak uses
 Tauri v2 — ~15 MB binary, a fraction of the memory, instant startup.
 
 Q: Can I self-host the entire pipeline?
@@ -294,17 +294,17 @@ Hindi-capable options today. Either is a single-file swap behind a thin wrapper
 in python/translator.py.
 
 ================================================================================
-PRIVACY  ·  https://syncspeak.pages.dev/privacy
+PRIVACY  ·  https://syncspeak.soumg.workers.dev/privacy
 ================================================================================
 
-SyncSpeak has no servers, no accounts, and no telemetry. There is nowhere for your
+Sync Speak has no servers, no accounts, and no telemetry. There is nowhere for your
 data to go because there is nothing between you and the providers you choose.
 
 What leaves your machine:
 - Audio snippets of your Hindi speech are sent to Sarvam AI for transcription and
   synthesis.
 - Transcribed text is sent to Groq for translation.
-- Nothing goes to SyncSpeak — the project operates no backend service.
+- Nothing goes to Sync Speak — the project operates no backend service.
 
 What stays on your machine:
 - API keys, stored in %APPDATA%\com.syncspeak.app\config.json on Windows (equivalent
@@ -312,7 +312,7 @@ What stays on your machine:
 - Translation history, saved locally for scrollback. Clearable at any time.
 - Voice and TTS preferences, stored in the same config file.
 
-What SyncSpeak does not do:
+What Sync Speak does not do:
 - No analytics.
 - No crash reporting to any server.
 - No automatic update telemetry.

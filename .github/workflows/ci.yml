@@ -12,7 +12,8 @@ on:
 jobs:
 
   # ── Job 1: Branch naming convention ──────────────────────────────────────────
-  # Only runs on PRs from developer feature/fix branches (not develop → main).
+  # Only runs on PRs from feature/fix branches INTO develop.
+  # Skips develop → main release PRs and main → develop syncback PRs.
   # Fails immediately with a clear message so the developer fixes it before
   # a reviewer even looks at the PR.
   branch-name:
@@ -20,7 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'pull_request' &&
-      github.head_ref != 'develop'
+      github.base_ref == 'develop' &&
+      github.head_ref != 'main'
     steps:
       - name: Validate branch naming convention
         run: |

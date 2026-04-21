@@ -25,7 +25,7 @@ paste logs here
 ## Environment
 
 - OS version: <!-- e.g. Windows 11 22H2 -->
-- SyncSpeak version: <!-- e.g. v2.0.0 -->
+- Sync Speak version: <!-- e.g. v3.0.0 -->
 - Python version: <!-- python --version -->
 - Mic device: <!-- e.g. Realtek, USB headset -->
 - Output device: <!-- VB-Cable or speaker name -->

@@ -1,6 +1,6 @@
 {
   "name": "syncspeak",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Real-time Hindi to English voice translator for meetings",
   "main": "out/main/index.js",
   "scripts": {

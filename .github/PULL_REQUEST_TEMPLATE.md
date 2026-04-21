@@ -3,7 +3,12 @@
           feat/issue-42-short-description
           fix/issue-7-brief-name
           docs/update-pipeline-diagram
-     CI will block the PR automatically if the branch name is wrong. -->
+     CI will block the PR automatically if the branch name is wrong.
+
+     🚀  RELEASE PR? (develop → main)
+         Use the release template instead by appending to the PR URL:
+         ?template=release.md
+         Or via CLI: gh pr create --template release.md --base main --head develop -->
 
 ## What this PR does
 
