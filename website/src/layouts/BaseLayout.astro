@@ -28,7 +28,7 @@ const organizationJsonLd = {
   '@type': 'Organization',
   name: siteName,
   url: Astro.site?.href,
-  logo: new URL('/favicon.svg', Astro.site).href,
+  logo: new URL('/logo2.webp', Astro.site).href,
   sameAs: ['https://github.com/Soumyadipgithub/SyncSpeak'],
 };
 ---
@@ -42,8 +42,7 @@ const organizationJsonLd = {
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#060608" />
 
-    <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="/logo2.svg" type="image/svg+xml" />
     <link rel="canonical" href={canonicalURL} />
     <link rel="sitemap" href="/sitemap-index.xml" />
 

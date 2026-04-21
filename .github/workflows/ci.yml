@@ -160,12 +160,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history so the secret scan can diff against the PR base, not just HEAD~1.
+          fetch-depth: 0
 
       - name: Check for .env files
         run: |
           ENV_FILES=$(find . -not -path './.git/*' -not -path '*/node_modules/*' \
-            -name '.env' -o -name '.env.local' -o -name '.env.production' \
-            | grep -v '.env.example' || true)
+            \( -name '.env' -o -name '.env.local' -o -name '.env.production' \) \
+            | grep -vF '.env.example' || true)
           if [ -n "$ENV_FILES" ]; then
             echo "❌ .env file committed:"
             echo "$ENV_FILES"
@@ -199,7 +202,13 @@ jobs:
 
       - name: Scan for accidental secrets
         run: |
-          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null \
+          # On pull_request, diff against the PR base so ALL commits in the PR are scanned.
+          # On push, fall back to the previous commit.
+          BASE="${{ github.event.pull_request.base.sha }}"
+          if [ -z "$BASE" ]; then
+            BASE="HEAD~1"
+          fi
+          CHANGED=$(git diff --name-only "$BASE"...HEAD 2>/dev/null \
             | grep -v node_modules | grep -v '.git' | grep -v 'package-lock.json' || true)
           SECRET_FOUND=0
           if [ -n "$CHANGED" ]; then
