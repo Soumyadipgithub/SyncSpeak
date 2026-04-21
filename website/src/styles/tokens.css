@@ -1,0 +1,89 @@
+/*
+ * Liquid Glass DNA — ported 1:1 from src/renderer/styles/globals.css
+ * Source of truth for both the Tauri app and this site.
+ * Keep values identical so the app and site read as siblings.
+ */
+
+:root {
+  /* Fluid Responsive Spacing — clamp(min, preferred, max) scales smoothly from 320px to 1440px+
+     Small tokens stay fixed; large ones contract on narrow screens so sections breathe on mobile. */
+  --space-xs: 4px;
+  --space-s: 8px;
+  --space-m: clamp(0.875rem, 0.5vw + 0.75rem, 1rem);        /* 14 → 16 */
+  --space-l: clamp(1.125rem, 1vw + 0.875rem, 1.5rem);       /* 18 → 24 */
+  --space-xl: clamp(1.25rem, 2vw + 0.75rem, 2rem);          /* 20 → 32 */
+  --space-2xl: clamp(1.75rem, 3.5vw + 0.75rem, 3rem);       /* 28 → 48 */
+  --space-3xl: clamp(2.25rem, 5vw + 1rem, 4.5rem);          /* 36 → 72 */
+  --space-4xl: clamp(3rem, 9vw + 1rem, 7.5rem);             /* 48 → 120 */
+
+  /* Fluid Typography */
+  --text-sm: clamp(0.8125rem, 0.15vw + 0.78rem, 0.875rem);  /* 13 → 14 */
+  --text-base: clamp(0.9375rem, 0.3vw + 0.875rem, 1rem);    /* 15 → 16 */
+  --text-lg: clamp(1rem, 0.5vw + 0.9rem, 1.125rem);         /* 16 → 18 */
+  --text-xl: clamp(1.125rem, 1vw + 0.9rem, 1.375rem);       /* 18 → 22 */
+
+  /* Unified Breakpoints — reference values only (CSS media queries can't read custom props) */
+  --bp-sm: 640px;   /* mobile ceiling */
+  --bp-md: 1024px;  /* tablet ceiling / desktop floor */
+  --bp-lg: 1280px;  /* large desktop */
+
+  /* Single source of truth for page-edge gutters.
+     Every edge-aware container (nav, .container, footer) reads from this,
+     guaranteeing the left/right gap is identical everywhere. */
+  --gutter: clamp(1.25rem, 4vw, 1.75rem);  /* 20 → 28px */
+
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 20px;
+  --radius-xl: 32px;
+  --radius-pill: 100px;
+
+  /* HIG Vibrancy Typography */
+  --vibrant-primary: #ffffff;
+  --vibrant-label: rgba(255, 255, 255, 0.65);
+  --vibrant-secondary: rgba(255, 255, 255, 0.45);
+  --vibrant-tertiary: rgba(255, 255, 255, 0.25);
+
+  /* DNA Color Palette (Neutral High-Contrast) */
+  --accent-blue: #0a84ff;
+  --orange: #ff9f0a;
+  --green: #30d158;
+  --red: #ff453a;
+
+  /* Refractive Material — Stained Glass DNA */
+  --liquid-blur: blur(20px) saturate(180%) brightness(1.2);
+  --glass-panel: rgba(15, 15, 20, 0.35);
+  --glass-bg: rgba(25, 25, 30, 0.25);
+  --glass-bg-hover: rgba(35, 35, 45, 0.35);
+  --border-glass: rgba(255, 255, 255, 0.12);
+  --border-blue: rgba(10, 132, 255, 0.3);
+  --internal-glow: rgba(10, 132, 255, 0.05);
+  --glass-blue: rgba(10, 132, 255, 0.05);
+
+  /* Liquid Glass Specular Tokens */
+  --liquid-specular: rgba(255, 255, 255, 0.85);
+  --liquid-edge: rgba(255, 255, 255, 0.15);
+  --liquid-shadow: rgba(0, 0, 0, 0.25);
+  --liquid-refraction: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
+
+  /* Controls */
+  --segmented-pill: #ffffff;
+  --segmented-bg: rgba(255, 255, 255, 0.1);
+  --liquid-morph: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Web-only extensions (site needs a background; the Tauri app doesn't) */
+  --bg-deep: #060608;
+  --bg-mid: #0d0d14;
+  --aurora-1: rgba(10, 132, 255, 0.18);
+  --aurora-2: rgba(48, 209, 88, 0.10);
+  --aurora-3: rgba(255, 159, 10, 0.08);
+
+  /* Typography scale (web) */
+  --font-display: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SF Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}

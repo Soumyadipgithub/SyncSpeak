@@ -1,0 +1,251 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DownloadButton from '../components/DownloadButton.astro';
+
+const title = 'How Sync Speak works — pipeline deep dive';
+const description =
+  'Step-by-step walkthrough of the Sync Speak audio pipeline: microphone capture, neural VAD, Sarvam Saarika STT, Groq Llama translation, Sarvam Bulbul TTS, and VB-Cable routing.';
+
+const steps = [
+  {
+    n: '01',
+    title: 'Microphone capture',
+    tech: 'sounddevice · 16 kHz · mono · WASAPI',
+    body:
+      'Audio is captured as 16 kHz mono PCM. Before every stream open, the WASAPI ' +
+      'backend is terminated and re-initialised — this eliminates the -9985 stale ' +
+      'device error you get on Windows when a meeting app has touched the device first.',
+  },
+  {
+    n: '02',
+    title: 'Neural Voice Activity Detection',
+    tech: 'webrtcvad-wheels · 10 ms frames · mode 3',
+    body:
+      'WebRTC Neural VAD classifies each 10 ms frame as speech or silence. A 500 ms ' +
+      'ring buffer (deque maxlen=5) sits upstream of the trigger, so when speech fires, ' +
+      'the preceding half-second is already captured. First syllables are not lost.',
+  },
+  {
+    n: '03',
+    title: 'Speech-to-text',
+    tech: 'Sarvam Saarika v2.5 (REST)',
+    body:
+      'When silence is detected after speech, the completed utterance is POSTed to ' +
+      'Saarika v2.5. It handles pure Hindi, Hinglish, and code-mixed speech natively. ' +
+      'A small Hinglish correction table runs on the output to catch common phonetic ' +
+      'mis-mappings before they reach the LLM.',
+  },
+  {
+    n: '04',
+    title: 'Translation with context',
+    tech: 'Groq · Llama 3.3 70B · 5-utterance rolling window',
+    body:
+      'The current utterance plus the previous four are sent to Groq. The system prompt ' +
+      'instructs the model to preserve meeting register, resolve pronouns, and keep ' +
+      'proper nouns untouched. Groq\'s inference latency is the key reason end-to-end ' +
+      'feels sub-second — hundreds of tokens per second.',
+  },
+  {
+    n: '05',
+    title: 'Text-to-speech, pipelined',
+    tech: 'Sarvam Bulbul v3 (REST) · sentence-level',
+    body:
+      'The English translation is split into sentences. Each sentence is synthesised ' +
+      'in parallel, but playback starts on sentence one as soon as it returns — ' +
+      'sentences two, three, four arrive during playback. End-to-end perceived ' +
+      'latency sits under 1.2 seconds.',
+  },
+  {
+    n: '06',
+    title: 'Output routing',
+    tech: 'VB-Cable · virtual microphone',
+    body:
+      'VB-Cable presents a virtual input device to the OS. Sync Speak writes the ' +
+      'translated audio into it, and your meeting app (Meet, Zoom, Teams, Discord) ' +
+      'selects the virtual cable as its microphone. The meeting hears English.',
+  },
+  {
+    n: '07',
+    title: 'Self-talk guard',
+    tech: 'internal _tts_active flag · VAD reset',
+    body:
+      'While Bulbul output is playing, microphone capture is gated off so the English ' +
+      'voice is not re-transcribed back into the Hindi STT. After playback ends, VAD ' +
+      'state is reset so no partial frames bleed into the next utterance.',
+  },
+];
+
+const howToJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'How Sync Speak translates your Hindi voice into English in real time',
+  description,
+  step: steps.map((s) => ({
+    '@type': 'HowToStep',
+    position: parseInt(s.n, 10),
+    name: s.title,
+    text: s.body,
+  })),
+};
+---
+
+<BaseLayout title={title} description={description}>
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify(howToJsonLd)}
+  />
+
+  <article class="wrap container section">
+    <header class="page-head">
+      <span class="hig-label">Under the hood</span>
+      <h1>From your voice to the meeting, in seven stages.</h1>
+      <p class="lede">
+        Sync Speak is a pipeline, not a monolith. Each stage solves one problem and hands
+        off to the next. Here's what happens between the moment you say something in
+        Hindi and the moment Zoom plays it back in English.
+      </p>
+    </header>
+
+    <div class="flow" aria-hidden="true">
+      <code>Mic → VAD → Saarika STT → Groq LLM → Bulbul TTS → VB-Cable → Meeting</code>
+    </div>
+
+    <ol class="steps" role="list">
+      {
+        steps.map((s) => (
+          <li class="glass-card step">
+            <div class="step-n" aria-hidden="true">{s.n}</div>
+            <div class="step-body">
+              <h2>{s.title}</h2>
+              <span class="tech">{s.tech}</span>
+              <p>{s.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <section class="latency glass-card">
+      <h2>Latency budget</h2>
+      <p>
+        End-to-end perceived latency sits between <strong>800 ms and 1.2 s</strong> on
+        typical office fibre. The breakdown:
+      </p>
+      <ul role="list" class="budget">
+        <li><span>VAD trigger</span><span>~50 ms</span></li>
+        <li><span>Saarika STT</span><span>~400 ms</span></li>
+        <li><span>Groq LLM</span><span>~150 ms</span></li>
+        <li><span>Bulbul first sentence</span><span>~300 ms</span></li>
+        <li><span>Playback start</span><span>~50 ms</span></li>
+      </ul>
+    </section>
+
+    <footer class="page-cta">
+      <DownloadButton label="Try it — download for" />
+      <a href="/docs" class="ghost-btn">Read the docs →</a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .wrap { max-width: 960px; }
+
+  .page-head { text-align: center; margin-bottom: var(--space-2xl); }
+  .page-head h1 { margin: var(--space-m) 0 var(--space-l); }
+  .lede {
+    max-width: 64ch;
+    margin: 0 auto;
+    font-size: 1.125rem;
+    color: var(--vibrant-label);
+  }
+
+  .flow {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--space-2xl);
+    padding: var(--space-m) var(--space-l);
+    background: var(--glass-panel);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-pill);
+    font-size: 0.875rem;
+  }
+  .flow code {
+    background: none;
+    padding: 0;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  @media (max-width: 720px) {
+    .flow {
+      border-radius: var(--radius-l);
+      padding: var(--space-m) var(--space-l);
+    }
+    .flow code { white-space: normal; word-break: break-word; line-height: 1.6; }
+  }
+
+  .steps {
+    list-style: none;
+    display: grid;
+    gap: var(--space-m);
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: var(--space-l);
+    padding: var(--space-xl);
+    align-items: start;
+  }
+  .step-n {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent-blue), var(--green));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .step h2 { font-size: 1.25rem; margin-bottom: var(--space-xs); }
+  .tech {
+    display: inline-block;
+    margin-bottom: var(--space-s);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--vibrant-secondary);
+  }
+
+  .latency {
+    margin-top: var(--space-2xl);
+    padding: var(--space-xl);
+  }
+  .latency h2 { margin-bottom: var(--space-s); }
+  .budget {
+    list-style: none;
+    margin-top: var(--space-m);
+    display: grid;
+    gap: var(--space-xs);
+  }
+  .budget li {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-s) 0;
+    border-bottom: 1px dashed var(--border-glass);
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    color: var(--vibrant-label);
+  }
+  .budget li:last-child { border-bottom: none; }
+
+  .page-cta {
+    margin-top: var(--space-3xl);
+    display: flex;
+    gap: var(--space-m);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 640px) {
+    .step { grid-template-columns: 1fr; }
+  }
+</style>

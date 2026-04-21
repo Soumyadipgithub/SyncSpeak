@@ -1,0 +1,129 @@
+---
+// Auto-detects the user's OS client-side and points the button at the matching
+// asset from the latest GitHub release. Release data is fetched at *build time*
+// so the HTML ships with working fallback URLs even if JS is disabled.
+
+interface Props {
+  variant?: 'primary' | 'ghost';
+  size?: 'md' | 'lg';
+  label?: string;
+}
+
+const { variant = 'primary', size = 'lg', label = 'Download for' } = Astro.props;
+
+type ReleaseAsset = { name: string; browser_download_url: string };
+type Release = {
+  tag_name: string;
+  html_url: string;
+  assets: ReleaseAsset[];
+};
+
+const fallback = {
+  tag: 'latest',
+  page: 'https://github.com/Soumyadipgithub/SyncSpeak/releases/latest',
+  windows: 'https://github.com/Soumyadipgithub/SyncSpeak/releases/latest',
+  mac: 'https://github.com/Soumyadipgithub/SyncSpeak/releases/latest',
+  linux: 'https://github.com/Soumyadipgithub/SyncSpeak/releases/latest',
+};
+
+let urls = { ...fallback };
+
+try {
+  const res = await fetch(
+    'https://api.github.com/repos/Soumyadipgithub/SyncSpeak/releases/latest',
+    { headers: { Accept: 'application/vnd.github+json' } }
+  );
+  if (res.ok) {
+    const rel = (await res.json()) as Release;
+    const find = (re: RegExp) =>
+      rel.assets.find((a) => re.test(a.name))?.browser_download_url ?? fallback.page;
+    urls = {
+      tag: rel.tag_name,
+      page: rel.html_url,
+      windows: find(/\.(exe|msi)$/i),
+      mac: find(/\.(dmg|pkg)$/i),
+      linux: find(/\.(AppImage|deb|rpm)$/i),
+    };
+  }
+} catch {
+  // Network/API issue at build time — ship with fallbacks.
+}
+
+const classes = [
+  variant === 'primary' ? 'gradient-btn' : 'ghost-btn',
+  size === 'lg' ? 'btn-lg' : '',
+  'dl-btn',
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+<a
+  href={urls.page}
+  class={classes}
+  data-url-windows={urls.windows}
+  data-url-mac={urls.mac}
+  data-url-linux={urls.linux}
+  data-url-fallback={urls.page}
+  data-label-prefix={label}
+  aria-label={`${label} your platform`}
+>
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"
+      stroke="currentColor"
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"></path>
+  </svg>
+  <span class="dl-label">{label} your platform</span>
+  <span class="dl-version">{urls.tag === 'latest' ? '' : urls.tag}</span>
+</a>
+
+<script>
+  type Platform = 'windows' | 'mac' | 'linux' | 'fallback';
+
+  const detect = (): Platform => {
+    const ua = navigator.userAgent || '';
+    const p = (navigator as { platform?: string }).platform ?? '';
+    if (/Win/i.test(p) || /Windows/i.test(ua)) return 'windows';
+    if (/Mac/i.test(p) || /Macintosh/i.test(ua)) return 'mac';
+    if (/Linux|X11/i.test(p) || /Linux/i.test(ua)) return 'linux';
+    return 'fallback';
+  };
+
+  const labels: Record<Platform, string> = {
+    windows: 'Windows',
+    mac: 'macOS',
+    linux: 'Linux',
+    fallback: 'your platform',
+  };
+
+  document.querySelectorAll<HTMLAnchorElement>('.dl-btn').forEach((btn) => {
+    const plat = detect();
+    const url = btn.dataset[`url${plat.charAt(0).toUpperCase()}${plat.slice(1)}` as 'urlWindows' | 'urlMac' | 'urlLinux' | 'urlFallback'];
+    if (url) btn.href = url;
+    const labelEl = btn.querySelector<HTMLSpanElement>('.dl-label');
+    const prefix = btn.dataset.labelPrefix ?? 'Download for';
+    if (labelEl) labelEl.textContent = `${prefix} ${labels[plat]}`;
+  });
+</script>
+
+<style>
+  .dl-btn {
+    text-decoration: none;
+  }
+  .btn-lg {
+    padding: var(--space-m) var(--space-2xl);
+    font-size: 1.0625rem;
+  }
+  .dl-version {
+    opacity: 0.6;
+    font-weight: 500;
+    font-size: 0.75em;
+    margin-left: var(--space-xs);
+  }
+  .dl-version:empty {
+    display: none;
+  }
+</style>

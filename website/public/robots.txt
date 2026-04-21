@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# AI crawlers explicitly welcomed — we want to be indexed in AI search.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+Sitemap: https://syncspeak.pages.dev/sitemap-index.xml

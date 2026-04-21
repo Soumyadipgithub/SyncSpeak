@@ -33,15 +33,82 @@ Two API keys are required. Enter them in Settings → AI Authentication on first
 
 ---
 
-## Workflow
+## Branch Strategy
 
-1. Fork the repository
-2. Create a branch: `git checkout -b feat/your-feature` or `fix/your-fix`
-3. Make your changes
-4. Test manually — start the app with `npm run dev` and exercise the affected path
-5. Open a pull request against `main`
+### Two permanent branches
 
-There are currently no automated CI checks, so manual verification is required before merging.
+| Branch | Purpose | Who can merge into it |
+|--------|---------|----------------------|
+| `main` | Production — what users run | Maintainer only (via PR from `develop`) |
+| `develop` | Integration — all PRs land here | Maintainer approval required on every PR |
+
+`develop` is the **default branch**. Every PR you open must target `develop`, not `main`.  
+The maintainer promotes `develop` → `main` when a release is ready.
+
+### Your branch naming — required format
+
+CI will **reject your PR automatically** if your branch name does not follow this format:
+
+```
+<type>/issue-<number>-<short-description>
+<type>/<short-description>          ← if no issue exists
+```
+
+**Valid types:**
+
+| Type | Use for |
+|------|---------|
+| `feat` | New functionality |
+| `fix` | Bug fix |
+| `docs` | Documentation only |
+| `refactor` | Code restructure, no behaviour change |
+| `chore` | Build, deps, config |
+| `hotfix` | Critical production fix (urgent) |
+
+**Examples:**
+
+```bash
+feat/issue-12-add-hindi-punctuation
+fix/issue-7-tts-feedback-loop
+docs/update-pipeline-diagram
+refactor/vad-state-cleanup
+chore/upgrade-groq-sdk
+hotfix/stt-400-error
+```
+
+Rules:
+- All lowercase, hyphen-separated words
+- No spaces, underscores, or capital letters in the description
+- Include the issue number when one exists: `fix/issue-7-description`
+
+### Full workflow
+
+```
+1. Fork the repo
+2. Create your branch from develop:
+      git checkout develop
+      git pull origin develop
+      git checkout -b feat/issue-42-your-feature
+
+3. Make your changes and test:
+      npm run dev
+
+4. Push and open a PR → target: develop (not main)
+
+5. CI runs automatically (branch name + Python + TypeScript + Rust checks)
+
+6. Maintainer reviews and approves
+
+7. Maintainer merges — your branch is auto-deleted
+
+8. Periodically, maintainer merges develop → main for a release
+```
+
+### What NOT to do
+
+- Do not open a PR against `main` — it will not be considered
+- Do not push directly to `develop` or `main` — both are protected
+- Do not name your branch `fix-thing` or `my-feature` — the CI branch check will fail
 
 ---
 

@@ -1,0 +1,200 @@
+---
+const year = new Date().getFullYear();
+
+const columns = [
+  {
+    title: 'Product',
+    links: [
+      { href: '/features', label: 'Features' },
+      { href: '/how-it-works', label: 'How it works' },
+      { href: '/download', label: 'Download' },
+      { href: '/faq', label: 'FAQ' },
+    ],
+  },
+  {
+    title: 'Developers',
+    links: [
+      { href: '/developers', label: 'Contribute' },
+      { href: '/docs', label: 'Documentation' },
+      { href: 'https://github.com/Soumyadipgithub/SyncSpeak', label: 'GitHub', external: true },
+      {
+        href: 'https://github.com/Soumyadipgithub/SyncSpeak/issues',
+        label: 'Report a bug',
+        external: true,
+      },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { href: '/privacy', label: 'Privacy' },
+      {
+        href: 'https://github.com/Soumyadipgithub/SyncSpeak/blob/main/LICENSE',
+        label: 'License (MIT)',
+        external: true,
+      },
+      {
+        href: 'https://github.com/Soumyadipgithub/SyncSpeak/blob/main/SECURITY.md',
+        label: 'Security',
+        external: true,
+      },
+    ],
+  },
+];
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="grid">
+      <div class="brand-col">
+        <div class="brand">
+          <img src="/logo2.webp" alt="" class="logo-img" aria-hidden="true" />
+          <span>Sync Speak</span>
+        </div>
+        <p class="tagline">
+          Real-time Hindi → English for meetings. Local, open-source, fast.
+        </p>
+      </div>
+      {
+        columns.map((col) => (
+          <div class="col">
+            <h4 class="hig-label">{col.title}</h4>
+            <ul role="list">
+              {col.links.map((l) => (
+                <li>
+                  <a
+                    href={l.href}
+                    rel={l.external ? 'noopener' : undefined}
+                    target={l.external ? '_blank' : undefined}
+                  >
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="bottom">
+      <span>© {year} Sync Speak. Open-source under MIT.</span>
+      <span class="status">
+        <span class="pulse" aria-hidden="true"></span> v3 pipeline active
+      </span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-top: var(--space-4xl);
+    padding: var(--space-3xl) 0 var(--space-xl);
+    border-top: 1px solid var(--border-glass);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    gap: var(--space-xl);
+  }
+
+  .col ul a { word-break: break-word; }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-s);
+    font-weight: 700;
+    font-size: 1.125rem;
+  }
+
+  .logo-img {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-s);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .tagline {
+    margin-top: var(--space-m);
+    max-width: 32ch;
+    font-size: 0.9375rem;
+  }
+
+  .col h4 {
+    display: inline-block;
+    font-size: 15px;
+    margin-bottom: var(--space-xs);
+    background: linear-gradient(135deg, var(--accent-blue), var(--green));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .col ul {
+    list-style: none;
+    margin-top: var(--space-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  .col a {
+    font-size: 0.9375rem;
+    color: var(--vibrant-label);
+  }
+
+  .col a:hover { color: var(--vibrant-primary); }
+
+  .bottom {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-l);
+    border-top: 1px solid var(--border-glass);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8125rem;
+    color: var(--vibrant-secondary);
+    flex-wrap: wrap;
+    gap: var(--space-m);
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-s);
+  }
+
+  .pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  @media (max-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-xl) var(--space-l);
+    }
+    .brand-col { grid-column: 1 / -1; }
+  }
+  @media (max-width: 640px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+    .bottom {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .col ul { gap: var(--space-xs); }
+  }
+</style>

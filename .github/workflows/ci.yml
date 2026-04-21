@@ -1,0 +1,227 @@
+name: CI
+
+# Runs on every PR targeting develop or main, and on direct pushes to those branches.
+# All 4 jobs must pass before a PR can be merged.
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+
+  # ── Job 1: Branch naming convention ──────────────────────────────────────────
+  # Only runs on PRs from developer feature/fix branches (not develop → main).
+  # Fails immediately with a clear message so the developer fixes it before
+  # a reviewer even looks at the PR.
+  branch-name:
+    name: Branch Name Check
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' &&
+      github.head_ref != 'develop'
+    steps:
+      - name: Validate branch naming convention
+        run: |
+          BRANCH="${{ github.head_ref }}"
+          echo "Checking branch: $BRANCH"
+
+          if echo "$BRANCH" | grep -qE '^(feat|fix|docs|refactor|chore|hotfix)(\/issue-[0-9]+)?\/[a-z0-9][a-z0-9-]*$'; then
+            echo "✅  '$BRANCH' follows the naming convention."
+          else
+            echo ""
+            echo "❌  '$BRANCH' does not follow the naming convention."
+            echo ""
+            echo "  Required format:  <type>/issue-<number>-<description>"
+            echo "  Alternative:      <type>/<description>"
+            echo ""
+            echo "  Valid types:  feat  fix  docs  refactor  chore  hotfix"
+            echo ""
+            echo "  Examples:"
+            echo "    feat/issue-12-add-hindi-punctuation"
+            echo "    fix/issue-7-tts-feedback-loop"
+            echo "    docs/update-pipeline-diagram"
+            echo "    refactor/vad-state-cleanup"
+            echo "    hotfix/stt-400-error"
+            echo ""
+            echo "  See CONTRIBUTING.md → Branch Naming for the full guide."
+            exit 1
+          fi
+
+  # ── Job 2: Python syntax check ───────────────────────────────────────────────
+  # Validates sidecar_main.py and translator.py parse without errors.
+  # Audio hardware is not required for a syntax check — ubuntu runner is fine.
+  python-check:
+    name: Python Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Syntax check — sidecar_main.py
+        run: python -m py_compile python/sidecar_main.py
+
+      - name: Syntax check — translator.py
+        run: python -m py_compile python/translator.py
+
+  # ── Job 3: Frontend type-check + build ───────────────────────────────────────
+  # TypeScript type check + Vite bundle build (frontend only, no Tauri shell).
+  # Catches broken types and broken imports before they reach a reviewer.
+  frontend:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+
+      - name: Vite build
+        run: npx vite build
+
+  # ── Job 4: Rust compile check ────────────────────────────────────────────────
+  # cargo check = full type + borrow check without producing a binary.
+  # ~10x faster than a full build; catches the same logic errors.
+  # Rust cache keeps crate downloads/compilation between runs (~3min → ~30s).
+  rust-check:
+    name: Rust Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux system deps (Tauri needs webkit2gtk headers)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            build-essential
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Create sidecar placeholder (tauri build.rs requires the binary to exist)
+        run: |
+          mkdir -p src-tauri/binaries
+          touch src-tauri/binaries/syncspeaker-sidecar-x86_64-unknown-linux-gnu
+          chmod +x src-tauri/binaries/syncspeaker-sidecar-x86_64-unknown-linux-gnu
+
+      - name: cargo check
+        run: cargo check
+        working-directory: src-tauri
+
+  # ── Job 5: Website build ─────────────────────────────────────────────────────
+  # Builds the Astro marketing site in /website. Fails fast if a page breaks.
+  website-build:
+    name: Website Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install website dependencies
+        run: npm ci
+        working-directory: website
+
+      - name: Astro build
+        run: npm run build
+        working-directory: website
+
+  # ── Job 6: Asset health check ────────────────────────────────────────────────
+  # Blocks pushes that contain files over 5 MB or accidentally committed .env files.
+  # Also warns on files over 500 KB so the team stays conscious of bundle size.
+  asset-health:
+    name: Asset Health Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so the secret scan can diff against the PR base, not just HEAD~1.
+          fetch-depth: 0
+
+      - name: Check for .env files
+        run: |
+          ENV_FILES=$(find . -not -path './.git/*' -not -path '*/node_modules/*' \
+            \( -name '.env' -o -name '.env.local' -o -name '.env.production' \) \
+            | grep -vF '.env.example' || true)
+          if [ -n "$ENV_FILES" ]; then
+            echo "❌ .env file committed:"
+            echo "$ENV_FILES"
+            exit 1
+          fi
+          echo "✅ No .env files found"
+
+      - name: Check for files over 5 MB (hard block)
+        run: |
+          LARGE=$(find . -not -path './.git/*' -not -path '*/node_modules/*' \
+            -not -path '*/target/*' -not -path '*/dist/*' \
+            -type f -size +5M 2>/dev/null || true)
+          if [ -n "$LARGE" ]; then
+            echo "❌ Files over 5 MB — remove or compress before merging:"
+            du -h $LARGE
+            exit 1
+          fi
+          echo "✅ No files over 5 MB"
+
+      - name: Warn on files over 500 KB
+        run: |
+          WARN=$(find . -not -path './.git/*' -not -path '*/node_modules/*' \
+            -not -path '*/target/*' -not -path '*/dist/*' \
+            -type f -size +500k 2>/dev/null || true)
+          if [ -n "$WARN" ]; then
+            echo "⚠️  Files over 500 KB (consider compressing):"
+            du -h $WARN
+          else
+            echo "✅ All assets within recommended size"
+          fi
+
+      - name: Scan for accidental secrets
+        run: |
+          # On pull_request, diff against the PR base so ALL commits in the PR are scanned.
+          # On push, fall back to the previous commit.
+          BASE="${{ github.event.pull_request.base.sha }}"
+          if [ -z "$BASE" ]; then
+            BASE="HEAD~1"
+          fi
+          CHANGED=$(git diff --name-only "$BASE"...HEAD 2>/dev/null \
+            | grep -v node_modules | grep -v '.git' | grep -v 'package-lock.json' || true)
+          SECRET_FOUND=0
+          if [ -n "$CHANGED" ]; then
+            while IFS= read -r file; do
+              if [ -f "$file" ]; then
+                if grep -qiE "(sk-[a-zA-Z0-9]{20,}|api[_-]?key\s*=\s*['\"][^'\"]{8,}|secret[_-]?key\s*=\s*['\"][^'\"]{8,})" "$file" 2>/dev/null; then
+                  echo "❌ Possible secret in: $file"
+                  SECRET_FOUND=1
+                fi
+              fi
+            done <<< "$CHANGED"
+          fi
+          if [ "$SECRET_FOUND" -eq 1 ]; then
+            exit 1
+          fi
+          echo "✅ No secrets detected"
