@@ -1,0 +1,17 @@
+# CODEOWNERS — GitHub uses this to auto-request reviews.
+#
+# Rule: the LAST matching pattern wins. Catch-all sits at the top; anything
+# more specific goes below it and overrides.
+#
+# To enforce this on a branch: Settings → Branches → branch protection rule →
+# tick "Require review from Code Owners". Combined with "Required approvals: 1",
+# this means every PR touching owned files needs an owner's approval — even
+# if another collaborator already approved.
+#
+# For now everything is owned by @Soumyadipgithub. As the team grows, add
+# area-specific rules below, e.g.:
+#   /python/      @backend-person
+#   /website/     @frontend-person
+#   /.github/     @Soumyadipgithub   # keep infra owned by the admin
+
+*   @Soumyadipgithub
