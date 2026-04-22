@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
-import { open } from '@tauri-apps/plugin-shell'
 import { useAppStore } from '../store/appStore'
+import { APP_NAME } from '../constants'
 import './GuidePage.css'
 
 export default function GuidePage() {
   const [cableFound, setCableFound] = useState<boolean | null>(null)
   const [installMessage, setInstallMessage] = useState<string | null>(null)
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
   const { apiKeyValid, setApiKeyValid, setShowSettings } = useAppStore()
 
   useEffect(() => {
@@ -23,7 +24,10 @@ export default function GuidePage() {
           setInstallMessage(data.message)
           if (data.event === 'install_done') {
             setTimeout(() => setInstallMessage(null), 5000)
-            invoke('send_sidecar_command', { cmd: JSON.stringify({ cmd: 'list_devices' }) })
+            if (data.message === "Active") {
+              setShowSuccessPopup(true)
+            }
+            invoke('send_sidecar_command', { cmd: JSON.stringify({ cmd: 'list_devices', force_rescan: true }) })
           }
         }
       })
@@ -83,7 +87,7 @@ export default function GuidePage() {
             Meeting Setup Guide
           </text>
         </svg>
-        <p>Follow these steps to ensure SyncSpeak works perfectly with your meetings.</p>
+        <p>Follow these steps to ensure {APP_NAME} works perfectly with your meetings.</p>
       </div>
 
       <div className="setup-grid">
@@ -95,28 +99,27 @@ export default function GuidePage() {
             <h2>Sarvam AI Key</h2>
             
             {!apiKeyValid ? (
-              <>
+              <div className="install-container">
                 <p>To start translating, you need to connect your Sarvam account. We've dedicated a central place for this in Settings.</p>
                 <button 
-                  className="install-btn configure-btn" 
+                  className="install-btn glass-premium" 
                   onClick={() => setShowSettings(true)}
-                  style={{ background: 'var(--accent-blue)', marginTop: 'auto' }}
                 >
                   Configure API Key
                 </button>
-                <p className="status-label error-label"><span>⚠</span> Authentication Required</p>
-              </>
+              </div>
             ) : (
               <div className="step-done-card">
                 <div className="done-icon">✔</div>
                 <div className="done-text">
                   <p>Your Sarvam AI engine is active and ready for your first meeting.</p>
-                  <button className="change-btn" onClick={() => setShowSettings(true)}>Change in Settings</button>
                 </div>
-                <p className="status-label success">Key Authenticated</p>
+                <button className="change-btn" onClick={() => setShowSettings(true)}>Change in Settings</button>
               </div>
             )}
           </div>
+          {!apiKeyValid && <div className="status-badge error">Auth Required</div>}
+          {apiKeyValid && <div className="status-badge success">Verified</div>}
         </div>
 
         {/* Step 1: VB-Cable */}
@@ -125,21 +128,28 @@ export default function GuidePage() {
           <div className="step-content">
             <h3>Infrastructure</h3>
             <h2>Virtual Audio Driver</h2>
-            <p>SyncSpeak uses a virtual cable to route your translated English voice from the AI engine directly into your meeting software.</p>
+            <p>{APP_NAME} uses a virtual cable to route your translated English voice from the AI engine directly into your meeting software.</p>
             
-            {cableFound === null ? (
-              <p className="status-label checking">Checking connection...</p>
+            {cableFound === true ? (
+              <div className="step-done-card">
+                <div className="done-icon">✓</div>
+                <div className="done-text">
+                  <p>Driver active and verified.</p>
+                </div>
+              </div>
             ) : cableFound === false ? (
-              <div className="cable-missing">
-                <button className="install-btn" onClick={handleInstallCable} disabled={!!installMessage}>
-                  {installMessage ? 'Installing...' : 'Install VB-Cable (One-Click)'}
+              <div className="install-container">
+                <p className="install-note">One-click installation for professional audio routing.</p>
+                <button className="install-btn glass-premium" onClick={handleInstallCable} disabled={!!installMessage}>
+                  {installMessage ? 'Initializing...' : 'Install Driver'}
                 </button>
-                <p className="status-label">Missing Pipeline</p>
               </div>
             ) : (
-              <p className="status-label success"><span>✔</span> Driver Active & Ready</p>
+              <div className="status-label checking">Checking hardware...</div>
             )}
           </div>
+          {cableFound === false && <div className="status-badge error">Missing Pipeline</div>}
+          {cableFound === true && <div className="status-badge success">Active</div>}
         </div>
 
         {/* Step 2: Meeting App Setup */}
@@ -162,7 +172,7 @@ export default function GuidePage() {
             </div>
             
             <p className="config-note">
-              SyncSpeak "speaks" into the virtual cable; your meeting "listens" to it.
+              {APP_NAME} "speaks" into the virtual cable; your meeting "listens" to it.
             </p>
           </div>
         </div>
@@ -174,7 +184,7 @@ export default function GuidePage() {
             <h3>Operation</h3>
             <h2>Start Translating</h2>
             <p>Go to the <strong>Translate</strong> tab, choose your physical microphone, and hit Start.</p>
-            <p style={{ marginTop: 'var(--space-s)' }}>SyncSpeak will capture your Hindi voice and play the English version through the cable.</p>
+            <p style={{ marginTop: 'var(--space-s)' }}>{APP_NAME} will capture your Hindi voice and play the English version through the cable.</p>
             <p className="status-label success" style={{ background: 'transparent', border: 'none', padding: '0', marginTop: 'auto' }}>
                Ready for Live Action
             </p>
@@ -187,6 +197,28 @@ export default function GuidePage() {
           <div className="status-bubble glass-card">
             <div className="spinner" />
             {installMessage}
+          </div>
+        </div>
+      )}
+
+      {/* SUCCESS POPUP OVERLAY */}
+      {showSuccessPopup && (
+        <div className="premium-popup-overlay">
+          <div className="premium-popup-content glass-card">
+            <div className="popup-icon">✨</div>
+            <h2>Installation Successful!</h2>
+            <p>Your Virtual Audio Driver is ready. We need to refresh the audio engine to activate your new pipeline.</p>
+            <div className="popup-actions">
+              <button className="popup-btn primary" onClick={async () => {
+                await invoke('restart_sidecar')
+                setShowSuccessPopup(false)
+              }}>
+                Refresh Engine Now
+              </button>
+              <button className="popup-btn secondary" onClick={() => setShowSuccessPopup(false)}>
+                I'll do it later
+              </button>
+            </div>
           </div>
         </div>
       )}
