@@ -35,14 +35,23 @@ try {
   );
   if (res.ok) {
     const rel = (await res.json()) as Release;
-    const find = (re: RegExp) =>
-      rel.assets.find((a) => re.test(a.name))?.browser_download_url ?? fallback.page;
+    // Helper: find the BEST asset for each platform. Priority order matters.
+    const findUrl = (patterns: RegExp[]) => {
+      for (const re of patterns) {
+        const hit = rel.assets.find((a) => re.test(a.name));
+        if (hit) return hit.browser_download_url;
+      }
+      return fallback.page;
+    };
     urls = {
       tag: rel.tag_name,
       page: rel.html_url,
-      windows: find(/\.(exe|msi)$/i),
-      mac: find(/\.(dmg|pkg)$/i),
-      linux: find(/\.(AppImage|deb|rpm)$/i),
+      // Windows: prefer .exe (familiar to most users) over .msi
+      windows: findUrl([/setup\.exe$/i, /\.exe$/i, /\.msi$/i]),
+      // macOS: prefer x64 .dmg (covers Intel + Rosetta on Apple Silicon)
+      mac: findUrl([/x64\.dmg$/i, /aarch64\.dmg$/i, /\.dmg$/i]),
+      // Linux: prefer .AppImage (runs everywhere) over .deb
+      linux: findUrl([/\.AppImage$/i, /\.deb$/i, /\.rpm$/i]),
     };
   }
 } catch {
