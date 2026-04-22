@@ -25,7 +25,7 @@
 ## Checklist
 
 - [ ] Branch targets `develop` (not `main`)
-- [ ] Branch name follows the `<type>/issue-<n>-<description>` convention
+- [ ] Branch name follows the naming convention (see CONTRIBUTING.md)
 - [ ] Read [CLAUDE.md](../CLAUDE.md) before making changes
 - [ ] Behaviour is unchanged or the change is intentional and described above
 - [ ] Key behaviours are not broken: TTS feedback flag, VAD pre-buffer, WASAPI reinit, device fallback
