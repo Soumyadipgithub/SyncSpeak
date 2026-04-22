@@ -38,7 +38,13 @@
     ],
     "externalBin": [
       "binaries/syncspeaker-sidecar"
-    ]
+    ],
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "displayLanguageSelector": true
+      }
+    }
   },
   "plugins": {
     "shell": {}
