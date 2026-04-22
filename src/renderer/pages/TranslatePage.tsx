@@ -4,6 +4,8 @@ import { listen } from '@tauri-apps/api/event'
 import { LiquidTerminal } from '../components/LiquidTerminal'
 import './TranslatePage.css'
 
+import { APP_NAME } from '../constants'
+
 interface LogEntry {
   id: string;
   type: 'heard' | 'translated' | 'system' | 'speaker';
@@ -300,7 +302,7 @@ export default function TranslatePage() {
           cmd: 'preview_voice', 
           speaker: selectedSpeaker, 
           out_device: outputDevice,
-          text: "At SyncSpeak, we are revolutionizing the way the world communicates by breaking down language barriers with our state-of-the-art real-time voice translation technology, ensuring that every professional meeting is seamless, natural, and crystal clear."
+          text: `At ${APP_NAME}, we are revolutionizing the way the world communicates by breaking down language barriers with our state-of-the-art real-time voice translation technology, ensuring that every professional meeting is seamless, natural, and crystal clear.`
         })
       })
     } finally {

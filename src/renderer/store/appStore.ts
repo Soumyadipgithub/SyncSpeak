@@ -47,6 +47,7 @@ interface AppState {
   setApiKeyValid: (v: boolean) => void
   setGroqKeyValid: (v: boolean) => void
   setShowSettings: (v: boolean) => void
+  setAppMetadata: (name: string, version: string) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({

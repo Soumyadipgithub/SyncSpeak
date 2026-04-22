@@ -8,10 +8,8 @@ import threading
 import asyncio
 import collections
 from pathlib import Path
-import urllib.request
 import zipfile
 import tempfile
-import subprocess
 import shutil
 import requests
 
@@ -421,7 +419,6 @@ def run_streaming_loop(in_idx: int, out_idx: int):
 
 def handle_command(cmd: dict):
     global is_translating, GLOBAL_SPEAKER, GLOBAL_THRESHOLD, GROQ_API_KEY
-
     c = cmd.get("cmd")
 
     if c == "start":
@@ -589,16 +586,58 @@ def handle_install_cable():
         exe_path = temp_dir / exe_name
 
         if exe_path.exists():
-            emit_event("trace", message=f"Launching installer EXE: {exe_path}")
+            emit_event("trace", message=f"Launching silent installer: {exe_path}")
             try:
-                # Use shell=False (default) to safely handle paths with spaces on Windows
-                subprocess.Popen([str(exe_path)])
-                emit_event("install_done", message="Installer launched! Follow instructions on screen.")
-            except OSError as e:
-                emit_event("error", message=f"Failed to launch installer process: {str(e)}")
-                emit_event("install_done", message="Launch error.")
+                # S_INFO structure for ShellExecuteExW to wait for process
+                import ctypes
+                from ctypes import wintypes
+
+                class SHELLEXECUTEINFO(ctypes.Structure):
+                    _fields_ = [
+                        ("cbSize", wintypes.DWORD),
+                        ("fMask", ctypes.c_ulong),
+                        ("hwnd", wintypes.HWND),
+                        ("lpVerb", wintypes.LPCWSTR),
+                        ("lpFile", wintypes.LPCWSTR),
+                        ("lpParameters", wintypes.LPCWSTR),
+                        ("lpDirectory", wintypes.LPCWSTR),
+                        ("nShow", ctypes.c_int),
+                        ("hInstApp", wintypes.HINSTANCE),
+                        ("lpIDList", ctypes.c_void_p),
+                        ("lpClass", wintypes.LPCWSTR),
+                        ("hkeyClass", wintypes.HKEY),
+                        ("dwHotKey", wintypes.DWORD),
+                        ("hIconOrMonitor", wintypes.HANDLE),
+                        ("hProcess", wintypes.HANDLE),
+                    ]
+
+                SEE_MASK_NOCLOSEPROCESS = 0x00000040
+                
+                sei = SHELLEXECUTEINFO()
+                sei.cbSize = ctypes.sizeof(sei)
+                sei.fMask = SEE_MASK_NOCLOSEPROCESS
+                sei.lpVerb = "runas"
+                sei.lpFile = str(exe_path)
+                sei.lpParameters = "-i -h" # Silent Install + Hide
+                sei.lpDirectory = str(temp_dir)
+                sei.nShow = 0 # SW_HIDE
+
+                if not ctypes.windll.shell32.ShellExecuteExW(ctypes.byref(sei)):
+                    raise OSError(f"ShellExecuteExW failed: {ctypes.GetLastError()}")
+
+                emit_event("install_status", message="Configuring hardware (Step 3/3)...")
+                
+                # Wait for the installer process to finish
+                WAIT_OBJECT_0 = 0
+                ctypes.windll.kernel32.WaitForSingleObject(sei.hProcess, 60000) # Wait max 60s
+                ctypes.windll.kernel32.CloseHandle(sei.hProcess)
+                
+                emit_event("install_done", message="Active") # Triggers automatic rescan in UI
+            except Exception as e:
+                emit_event("error", message=f"Silent install failed: {str(e)}")
+                emit_event("install_done", message="Setup Error")
         else:
-            emit_event("error", message="Could not find installer EXE in downloaded pack.")
+            emit_event("error", message="Could not find installer EXE.")
 
     except Exception as e:
         emit_event("error", message=f"Installation failed: {str(e)}")
