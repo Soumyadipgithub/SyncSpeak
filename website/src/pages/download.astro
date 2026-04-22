@@ -131,6 +131,28 @@ const published = release ? new Date(release.published_at).toLocaleDateString() 
       }
     </section>
 
+    <section class="trusted-guide glass-card">
+      <div class="guide-content">
+        <h2>Trusted &amp; Open Source</h2>
+        <p>
+          Sync Speak is an independent open-source project. Because we don't buy expensive Microsoft certificates, Windows SmartScreen may show a <strong>"Windows protected your PC"</strong> warning when you open the installer.
+        </p>
+        <div class="steps">
+          <div class="step-item">
+            <span class="step-number">1</span>
+            <p>Click <strong>More info</strong> on the warning screen.</p>
+          </div>
+          <div class="step-item">
+            <span class="step-number">2</span>
+            <p>Click <strong>Run anyway</strong> to start the installer.</p>
+          </div>
+        </div>
+        <p class="source-link">
+          You can inspect our code transparently on <a href="https://github.com/Soumyadipgithub/SyncSpeak" target="_blank" rel="noopener">GitHub</a>.
+        </p>
+      </div>
+    </section>
+
     <section class="req glass-card">
       <h2>System requirements</h2>
       <dl>
@@ -235,6 +257,44 @@ npm run dev</code></pre>
   .asset-dl { padding: var(--space-s) var(--space-m); font-size: 0.875rem; }
 
   .empty { padding: var(--space-xl); text-align: center; }
+  .trusted-guide {
+    padding: var(--space-xl);
+    margin-bottom: var(--space-2xl);
+    border: 1px solid var(--accent-blue);
+    background: linear-gradient(180deg, rgba(10, 132, 255, 0.05) 0%, rgba(0, 0, 0, 0) 100%);
+  }
+  .trusted-guide h2 { margin-bottom: var(--space-s); color: var(--accent-blue); }
+  .trusted-guide p { margin-bottom: var(--space-l); font-size: 0.9375rem; color: var(--vibrant-label); }
+  .trusted-guide .steps {
+    display: flex;
+    gap: var(--space-l);
+    margin-bottom: var(--space-l);
+  }
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    background: var(--glass-panel);
+    padding: var(--space-s) var(--space-m);
+    border-radius: var(--radius-m);
+    border: 1px solid var(--border-glass);
+    flex: 1;
+  }
+  .step-item p { margin-bottom: 0; font-size: 0.875rem; color: var(--vibrant-primary); }
+  .step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    color: var(--black);
+    font-weight: bold;
+    font-size: 0.8125rem;
+  }
+  .source-link { font-size: 0.875rem; color: var(--vibrant-secondary); margin-bottom: 0 !important; }
+  .source-link a { color: var(--vibrant-primary); border-bottom: 1px solid var(--border-glass); }
 
   .req {
     padding: var(--space-xl);
