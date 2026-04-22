@@ -1,9 +1,9 @@
 name: Release
 
 # Runs on every push to main.
-# Reads the version from src-tauri/tauri.conf.json, compares it to the
-# latest published GitHub release, and only proceeds if the version is higher.
-# The dev's only job: bump the version number → merge to main → done.
+# Reads the version from src-tauri/tauri.conf.json (single source of truth),
+# compares it to the latest published GitHub release, and only proceeds if
+# the version is strictly higher. The dev's only job: bump the version → merge.
 
 on:
   push:
@@ -12,9 +12,14 @@ on:
 permissions:
   contents: write   # create tags + GitHub Release
 
+# Prevent two release jobs racing if commits land in quick succession.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
 
-  # ── Step 1: Check whether the version was bumped ────────────────────────────
+  # ── Step 1: Detect whether a new release is needed ──────────────────────────
   version-check:
     name: Version Check
     runs-on: ubuntu-latest
@@ -29,41 +34,50 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Read version from the single source of truth
           APP_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
           echo "App version: $APP_VERSION"
 
-          # Get latest published release tag (returns empty string if none exist)
           LATEST_TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName' 2>/dev/null || echo "")
-          LATEST_VERSION=${LATEST_TAG#v}   # strip leading "v"
+          LATEST_VERSION=${LATEST_TAG#v}
           echo "Latest release: ${LATEST_TAG:-none}"
 
-          # Compare using sort -V (version-aware sort)
           if [ -z "$LATEST_VERSION" ]; then
             # No releases yet — always release
             echo "should_release=true" >> "$GITHUB_OUTPUT"
-          elif printf '%s\n%s\n' "$LATEST_VERSION" "$APP_VERSION" \
-               | sort -V -C 2>/dev/null; then
-            # LATEST_VERSION >= APP_VERSION → already released, skip
-            echo "should_release=false" >> "$GITHUB_OUTPUT"
           else
-            echo "should_release=true" >> "$GITHUB_OUTPUT"
+            # Release only when APP_VERSION is strictly greater than LATEST_VERSION.
+            # Find the higher of the two; if APP is higher AND different → new release.
+            HIGHEST=$(printf '%s\n%s\n' "$LATEST_VERSION" "$APP_VERSION" | sort -V | tail -1)
+            if [ "$APP_VERSION" != "$LATEST_VERSION" ] && [ "$HIGHEST" = "$APP_VERSION" ]; then
+              echo "should_release=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "should_release=false" >> "$GITHUB_OUTPUT"
+            fi
           fi
           echo "version=$APP_VERSION" >> "$GITHUB_OUTPUT"
 
   # ── Step 2: Matrix build — only runs when version was bumped ────────────────
+  # NOTE: fail-fast is false so all platforms attempt to upload assets.
+  # If one platform fails after another has already created the release tag,
+  # re-run only the failed job from the GitHub Actions UI to add its assets.
   build:
-    name: Build (${{ matrix.platform }})
+    name: Build (${{ matrix.sidecar-target }})
     needs: version-check
     if: needs.version-check.outputs.should_release == 'true'
     strategy:
       fail-fast: false
       matrix:
         include:
+          # Windows — MSVC toolchain (default on windows-latest)
           - platform: windows-latest
             sidecar-target: x86_64-pc-windows-msvc
-          - platform: macos-latest
+          # macOS Intel — use macos-13 for a native x86_64 runner
+          - platform: macos-13
             sidecar-target: x86_64-apple-darwin
+          # macOS Apple Silicon — macos-latest is now M1/M2 (macos-14)
+          - platform: macos-latest
+            sidecar-target: aarch64-apple-darwin
+          # Linux x86_64
           - platform: ubuntu-22.04
             sidecar-target: x86_64-unknown-linux-gnu
 
@@ -117,13 +131,33 @@ jobs:
             portaudio19-dev
 
       # ── Build Python sidecar ────────────────────────────────────────────────
+      # Windows: invoke PyInstaller via CLI flags (not the repo .spec file) so
+      # the output binary is named with the correct -msvc triple that Tauri
+      # expects. The repo's .spec file uses -gnu (for local dev) and is not
+      # used here to avoid the confusing rename step.
       - name: Build sidecar (Windows)
         if: matrix.platform == 'windows-latest'
         shell: pwsh
         run: |
-          pyinstaller syncspeaker-sidecar-x86_64-pc-windows-gnu.spec --distpath dist-py
+          pyinstaller `
+            --onefile `
+            --name "syncspeaker-sidecar-${{ matrix.sidecar-target }}" `
+            --hidden-import groq `
+            --hidden-import groq._client `
+            --hidden-import groq.resources `
+            --hidden-import httpx `
+            --hidden-import anyio `
+            --exclude-module matplotlib `
+            --exclude-module PIL `
+            --exclude-module Pillow `
+            --exclude-module tkinter `
+            --exclude-module pandas `
+            --exclude-module IPython `
+            --exclude-module scipy `
+            --distpath dist-py `
+            python\sidecar_main.py
           New-Item -ItemType Directory -Force src-tauri/binaries | Out-Null
-          Copy-Item "dist-py/syncspeaker-sidecar-x86_64-pc-windows-gnu.exe" `
+          Copy-Item "dist-py/syncspeaker-sidecar-${{ matrix.sidecar-target }}.exe" `
             "src-tauri/binaries/syncspeaker-sidecar-${{ matrix.sidecar-target }}.exe"
 
       - name: Build sidecar (macOS / Linux)
@@ -155,3 +189,4 @@ jobs:
             See [CHANGELOG.md](https://github.com/Soumyadipgithub/SyncSpeak/blob/main/CHANGELOG.md) for what's new.
           releaseDraft: false
           prerelease: false
+          args: ${{ matrix.sidecar-target == 'aarch64-apple-darwin' && '--target aarch64-apple-darwin' || '' }}
