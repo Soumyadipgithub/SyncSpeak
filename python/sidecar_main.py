@@ -13,6 +13,7 @@ import zipfile
 import tempfile
 import subprocess
 import shutil
+import requests
 
 # Disable buffering
 sys.stdout = open(sys.stdout.fileno(), mode='w', buffering=1, encoding='utf8')
@@ -556,11 +557,26 @@ def handle_install_cable():
             shutil.rmtree(temp_dir)
         temp_dir.mkdir(parents=True, exist_ok=True)
 
-        url      = "https://download.vb-audio.com/Download_Html/VBCABLE_Driver_Pack43.zip"
+        url      = "https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack43.zip"
         zip_path = temp_dir / "vbcable.zip"
 
         emit_event("install_status", message="Downloading driver (Step 1/3)...")
-        urllib.request.urlretrieve(url, zip_path)
+        
+        # Use requests with a browser-like User-Agent to prevent server blocks
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        try:
+            with requests.get(url, headers=headers, stream=True, timeout=30) as r:
+                r.raise_for_status()
+                with open(zip_path, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        f.write(chunk)
+        except requests.exceptions.RequestException as e:
+            emit_event("error", message=f"Download failed: {str(e)}")
+            emit_event("install_done", message="Connection error. Check your internet.")
+            return
 
         emit_event("install_status", message="Extracting files (Step 2/3)...")
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
