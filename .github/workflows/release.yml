@@ -1,25 +1,18 @@
 name: Release
 
-# Runs on every push to main.
-# Reads the version from src-tauri/tauri.conf.json (single source of truth),
-# compares it to the latest published GitHub release, and only proceeds if
-# the version is strictly higher. The dev's only job: bump the version → merge.
-
 on:
   push:
     branches: [main]
 
 permissions:
-  contents: write   # create tags + GitHub Release
+  contents: write
 
-# Prevent two release jobs racing if commits land in quick succession.
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
 
-  # ── Step 1: Detect whether a new release is needed ──────────────────────────
   version-check:
     name: Version Check
     runs-on: ubuntu-latest
@@ -42,11 +35,8 @@ jobs:
           echo "Latest release: ${LATEST_TAG:-none}"
 
           if [ -z "$LATEST_VERSION" ]; then
-            # No releases yet — always release
             echo "should_release=true" >> "$GITHUB_OUTPUT"
           else
-            # Release only when APP_VERSION is strictly greater than LATEST_VERSION.
-            # Find the higher of the two; if APP is higher AND different → new release.
             HIGHEST=$(printf '%s\n%s\n' "$LATEST_VERSION" "$APP_VERSION" | sort -V | tail -1)
             if [ "$APP_VERSION" != "$LATEST_VERSION" ] && [ "$HIGHEST" = "$APP_VERSION" ]; then
               echo "should_release=true" >> "$GITHUB_OUTPUT"
@@ -56,10 +46,8 @@ jobs:
           fi
           echo "version=$APP_VERSION" >> "$GITHUB_OUTPUT"
 
-  # ── Step 2: Matrix build — only runs when version was bumped ────────────────
-  # NOTE: fail-fast is false so all platforms attempt to upload assets.
-  # If one platform fails after another has already created the release tag,
-  # re-run only the failed job from the GitHub Actions UI to add its assets.
+  # Build on all platforms, upload bundles as artifacts.
+  # publish job runs only after ALL legs succeed — no partial releases.
   build:
     name: Build (${{ matrix.sidecar-target }})
     needs: version-check
@@ -68,25 +56,24 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Windows — MSVC toolchain (default on windows-latest)
           - platform: windows-latest
             sidecar-target: x86_64-pc-windows-msvc
-          # macOS Intel — use macos-13 for a native x86_64 runner
-          - platform: macos-13
+            tauri-args: ''
+          - platform: macos-13          # Intel runner — native x86_64
             sidecar-target: x86_64-apple-darwin
-          # macOS Apple Silicon — macos-latest is now M1/M2 (macos-14)
-          - platform: macos-latest
+            tauri-args: '--target x86_64-apple-darwin'
+          - platform: macos-latest      # M1/M2 runner — native aarch64
             sidecar-target: aarch64-apple-darwin
-          # Linux x86_64
+            tauri-args: '--target aarch64-apple-darwin'
           - platform: ubuntu-22.04
             sidecar-target: x86_64-unknown-linux-gnu
+            tauri-args: ''
 
     runs-on: ${{ matrix.platform }}
 
     steps:
       - uses: actions/checkout@v4
 
-      # ── Node ────────────────────────────────────────────────────────────────
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -94,14 +81,12 @@ jobs:
 
       - run: npm ci
 
-      # ── Rust ────────────────────────────────────────────────────────────────
       - uses: dtolnay/rust-toolchain@stable
 
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
 
-      # ── Python ──────────────────────────────────────────────────────────────
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -117,7 +102,6 @@ jobs:
             pip install webrtcvad
           fi
 
-      # ── Linux system deps ───────────────────────────────────────────────────
       - name: Install Linux system dependencies
         if: matrix.platform == 'ubuntu-22.04'
         run: |
@@ -130,11 +114,8 @@ jobs:
             build-essential \
             portaudio19-dev
 
-      # ── Build Python sidecar ────────────────────────────────────────────────
-      # Windows: invoke PyInstaller via CLI flags (not the repo .spec file) so
-      # the output binary is named with the correct -msvc triple that Tauri
-      # expects. The repo's .spec file uses -gnu (for local dev) and is not
-      # used here to avoid the confusing rename step.
+      # Windows: uses inline CLI flags (matching the updated .spec file) so the
+      # output binary carries the correct -msvc triple that Tauri expects.
       - name: Build sidecar (Windows)
         if: matrix.platform == 'windows-latest'
         shell: pwsh
@@ -178,15 +159,45 @@ jobs:
              "src-tauri/binaries/syncspeaker-sidecar-${{ matrix.sidecar-target }}"
           chmod +x "src-tauri/binaries/syncspeaker-sidecar-${{ matrix.sidecar-target }}"
 
-      # ── Build Tauri + publish release ───────────────────────────────────────
+      # Build Tauri bundles but do NOT publish here — publish job does that
+      # atomically once ALL matrix legs succeed.
       - uses: tauri-apps/tauri-action@v0
+        with:
+          args: ${{ matrix.tauri-args }}
+
+      - name: Upload bundle artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundles-${{ matrix.sidecar-target }}
+          if-no-files-found: error
+          path: |
+            src-tauri/target/**/bundle/**/*.exe
+            src-tauri/target/**/bundle/**/*.msi
+            src-tauri/target/**/bundle/**/*.dmg
+            src-tauri/target/**/bundle/**/*.AppImage
+            src-tauri/target/**/bundle/**/*.deb
+
+  # Runs only after every matrix leg succeeds — guarantees atomic publish.
+  publish:
+    name: Publish Release
+    needs: [version-check, build]
+    if: needs.version-check.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all bundle artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: bundles-*
+          merge-multiple: true
+          path: release-assets
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.version-check.outputs.version }}
+          name: SyncSpeak v${{ needs.version-check.outputs.version }}
+          body: |
+            See [CHANGELOG.md](https://github.com/Soumyadipgithub/SyncSpeak/blob/main/CHANGELOG.md) for what's new.
+          files: release-assets/**
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: v${{ needs.version-check.outputs.version }}
-          releaseName: 'SyncSpeak v${{ needs.version-check.outputs.version }}'
-          releaseBody: |
-            See [CHANGELOG.md](https://github.com/Soumyadipgithub/SyncSpeak/blob/main/CHANGELOG.md) for what's new.
-          releaseDraft: false
-          prerelease: false
-          args: ${{ matrix.sidecar-target == 'aarch64-apple-darwin' && '--target aarch64-apple-darwin' || '' }}
