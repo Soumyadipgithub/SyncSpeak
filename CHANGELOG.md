@@ -5,6 +5,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [3.0.1] — 2026-04-22
+
+### Changed
+- **Branding** — Custom SyncSpeak logo applied to the Windows NSIS installer.
+
 ## [3.0.0] — Public Launch (current)
 
 ### Added
