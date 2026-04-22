@@ -114,15 +114,22 @@ jobs:
             build-essential \
             portaudio19-dev
 
-      # Windows: uses inline CLI flags (matching the updated .spec file) so the
-      # output binary carries the correct -msvc triple that Tauri expects.
+      # Windows: invoke PyInstaller via CLI flags so the output binary carries
+      # the correct -msvc triple. A no-op hook overrides the broken webrtcvad
+      # hook in pyinstaller-hooks-contrib; --collect-binaries picks up the .pyd.
       - name: Build sidecar (Windows)
         if: matrix.platform == 'windows-latest'
         shell: pwsh
         run: |
+          # Override broken webrtcvad hook with a no-op so PyInstaller doesn't crash
+          New-Item -ItemType Directory -Force pyi-hooks | Out-Null
+          "" | Out-File pyi-hooks/hook-webrtcvad.py -Encoding utf8
+
           pyinstaller `
             --onefile `
             --name "syncspeaker-sidecar-${{ matrix.sidecar-target }}" `
+            --additional-hooks-dir pyi-hooks `
+            --collect-binaries webrtcvad `
             --hidden-import groq `
             --hidden-import groq._client `
             --hidden-import groq.resources `
