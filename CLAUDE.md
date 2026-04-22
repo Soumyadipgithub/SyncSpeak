@@ -116,3 +116,54 @@ On every launch, `TranslatePage.tsx` listens for the Python `ready` event and au
 - **Transparency**: True desktop transparency active (Neutral Charcoal Spec)
 - **VB-Cable**: Physical installation required for meeting audio routing
 - **Python venv**: Must include `groq` and `webrtcvad-wheels` in addition to `requirements.txt`
+
+---
+
+## Workflow Rules
+
+Read `CONTRIBUTING.md` for the full guide. The rules below are the minimum an agent or contributor must follow.
+
+### Issue-first policy
+
+**Always create a GitHub issue before starting work.** Use the correct template:
+
+| Template | Use for |
+|----------|---------|
+| `bug_report.md` | Something broken — needs steps to reproduce |
+| `feature_request.md` | New user-facing capability |
+| `chore.md` | CI, config, docs, dependencies, infrastructure |
+
+### Branch naming
+
+```
+<type>/issue-<number>-<short-description>   ← when a GitHub issue exists
+<type>/<short-description>                  ← only if no issue exists
+```
+
+**Valid types:** `feat`, `fix`, `docs`, `refactor`, `chore`, `hotfix`
+
+**Critical rule:** Only reference an issue number if your branch directly addresses that issue. Using an unrelated issue number is **worse** than using none. If no issue exists, create one first.
+
+### PR templates — which one to use
+
+| PR direction | Template | Title format |
+|---|---|---|
+| Feature branch → `develop` | Standard (auto-loaded) | `feat: short description` |
+| `develop` → `main` | `release.md` | `release: vX.Y.Z — short theme` |
+| `main` → `develop` | `syncback.md` | `chore: sync main → develop` |
+
+### Version bump — all 5 files must match
+
+When bumping the version for a release, update **all** of these:
+
+1. `package.json` → `version`
+2. `src-tauri/tauri.conf.json` → `version`
+3. `src-tauri/Cargo.toml` → `version`
+4. `website/src/pages/index.astro` → `softwareVersion`
+5. `CHANGELOG.md` → new section at top
+
+### Never
+
+- Commit directly to `develop` or `main` — both are protected
+- Push without creating a PR first
+- Reuse an issue number from a previous, unrelated task
