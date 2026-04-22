@@ -17,9 +17,18 @@ name: Auto Syncback main → develop
 # ──────────────────────────────────────────────────────────────────────────────
 #
 # NOTE ON CI: PRs opened by GITHUB_TOKEN do not trigger other workflows
-# (GitHub's built-in anti-loop protection). If you want CI to run on the sync
-# PR, close + reopen it once — that re-triggers checks under your user account.
-# For a typical "0 files changed" sync PR, CI isn't strictly needed anyway.
+# (GitHub's built-in anti-loop protection). The required status checks on
+# develop will sit in "Expected — waiting for status to be reported" forever
+# on a sync PR. That's fine: you, as admin, merge via the
+# "Merge without waiting for requirements (bypass rules)" checkbox.
+#
+# NOTE ON "AUTO-MERGE": This workflow attempts auto-merge on empty-diff syncs,
+# but on a personal repo with strict branch protection it WILL be blocked —
+# the bot can't self-approve and can't satisfy required checks that never run.
+# You will still need one manual click per sync PR. The auto-merge step is
+# kept for the two future-scenarios where it works: (a) repo is moved to an
+# org with a ruleset that bypasses the bot, or (b) someone swaps GITHUB_TOKEN
+# for a PAT / fine-grained token. Today, expect to merge manually.
 
 on:
   push:
@@ -78,12 +87,14 @@ jobs:
         id: diff
         run: |
           # Empty diff means main and develop are already content-identical and
-          # only the merge-commit graph differs. That's the safe auto-merge case.
+          # only the merge-commit graph differs — the "bypass rules and merge"
+          # case. No human review needed beyond one click.
           # Non-empty diff means someone committed directly to main (hotfix, docs
-          # patch, emergency config) and those changes deserve human review.
+          # patch, emergency config) and those changes deserve human review
+          # before being merged back.
           if [ -z "$(git diff origin/develop..HEAD --name-only)" ]; then
             echo "empty=true" >> $GITHUB_OUTPUT
-            echo "✅  Diff is empty (0 files changed) — safe to auto-merge."
+            echo "✅  Diff is empty (0 files changed) — safe to merge (one-click bypass)."
           else
             echo "empty=false" >> $GITHUB_OUTPUT
             echo "⚠️  Diff has file changes — will open for manual review:"
@@ -98,8 +109,8 @@ jobs:
           # Body comes from the dedicated syncback template — edit that file,
           # not this YAML, to change how the PR reads.
           # Reviewer + assignee are only set when the diff is non-empty: an empty
-          # sync will be auto-merged in the next step, so pinging you for review
-          # on something that's about to merge itself is just noise.
+          # sync is a one-click bypass-merge for the admin, so pinging yourself
+          # for review on something you'll just click-merge is noise.
           # If a PR already exists on this branch, `gh pr create` exits non-zero.
           # That's fine: the force-push above updated the branch and the existing
           # PR picks up the changes automatically. We swallow the error.
@@ -115,22 +126,29 @@ jobs:
             $EXTRA_FLAGS \
           || echo "ℹ️  Sync PR already open — the force-push updated it in place."
 
-      - name: Auto-merge if the diff is empty (safe path)
+      - name: Try auto-merge on empty diff (usually blocked — that's OK)
         if: steps.check.outputs.needed == 'true' && steps.merge.outcome == 'success' && steps.diff.outputs.empty == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # On a personal repo with strict develop protection, the bot is
+          # blocked here — it can't self-approve and can't pass required checks
+          # that never run (anti-loop rule). The admin merges manually via the
+          # "Merge without waiting for requirements (bypass rules)" checkbox.
+          #
+          # This step is retained so the flow works automatically if you later:
+          #   (a) move the repo into a GitHub organization and add a ruleset
+          #       with `github-actions` as a bypass actor, or
+          #   (b) swap GITHUB_TOKEN for a PAT with admin merge rights.
+          #
           # Merge strategy is --merge (not squash/rebase) to preserve the merge
           # commit from main. --delete-branch cleans up the temp branch so the
           # repo doesn't accumulate stale chore/sync-* branches.
-          # If branch protection on develop blocks the bot, this step fails softly
-          # — the PR stays open for you to merge manually. We do NOT fail the
-          # workflow, because the PR is the fallback.
           gh pr merge chore/sync-main-to-develop \
             --merge \
             --delete-branch \
-          && echo "✅  Auto-merged. You will receive a notification that the PR was merged." \
-          || echo "⚠️  Auto-merge blocked (likely branch protection). PR is open for manual merge."
+          && echo "✅  Auto-merged (org ruleset or PAT path active)." \
+          || echo "ℹ️  Auto-merge blocked by branch protection — expected on a personal repo. Merge manually with the 'bypass rules' checkbox."
 
       - name: Fail loudly on merge conflict
         if: steps.check.outputs.needed == 'true' && steps.merge.outcome == 'failure'
