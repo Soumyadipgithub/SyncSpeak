@@ -1,6 +1,6 @@
 [package]
 name = "syncspeak"
-version = "3.0.1"
+version = "3.0.2"
 description = "Real-time Hindi to English voice translator for meetings"
 authors = ["Soumyadip Giri"]
 license = "MIT"
