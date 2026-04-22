@@ -573,8 +573,14 @@ def handle_install_cable():
         exe_path = temp_dir / exe_name
 
         if exe_path.exists():
-            subprocess.Popen([str(exe_path)], shell=True)
-            emit_event("install_done", message="Installer launched! Follow instructions on screen.")
+            emit_event("trace", message=f"Launching installer EXE: {exe_path}")
+            try:
+                # Use shell=False (default) to safely handle paths with spaces on Windows
+                subprocess.Popen([str(exe_path)])
+                emit_event("install_done", message="Installer launched! Follow instructions on screen.")
+            except OSError as e:
+                emit_event("error", message=f"Failed to launch installer process: {str(e)}")
+                emit_event("install_done", message="Launch error.")
         else:
             emit_event("error", message="Could not find installer EXE in downloaded pack.")
 
