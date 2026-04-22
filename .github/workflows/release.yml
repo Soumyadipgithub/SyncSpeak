@@ -1,0 +1,157 @@
+name: Release
+
+# Runs on every push to main.
+# Reads the version from src-tauri/tauri.conf.json, compares it to the
+# latest published GitHub release, and only proceeds if the version is higher.
+# The dev's only job: bump the version number → merge to main → done.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write   # create tags + GitHub Release
+
+jobs:
+
+  # ── Step 1: Check whether the version was bumped ────────────────────────────
+  version-check:
+    name: Version Check
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare tauri.conf.json version with latest release
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Read version from the single source of truth
+          APP_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          echo "App version: $APP_VERSION"
+
+          # Get latest published release tag (returns empty string if none exist)
+          LATEST_TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName' 2>/dev/null || echo "")
+          LATEST_VERSION=${LATEST_TAG#v}   # strip leading "v"
+          echo "Latest release: ${LATEST_TAG:-none}"
+
+          # Compare using sort -V (version-aware sort)
+          if [ -z "$LATEST_VERSION" ]; then
+            # No releases yet — always release
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          elif printf '%s\n%s\n' "$LATEST_VERSION" "$APP_VERSION" \
+               | sort -V -C 2>/dev/null; then
+            # LATEST_VERSION >= APP_VERSION → already released, skip
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=$APP_VERSION" >> "$GITHUB_OUTPUT"
+
+  # ── Step 2: Matrix build — only runs when version was bumped ────────────────
+  build:
+    name: Build (${{ matrix.platform }})
+    needs: version-check
+    if: needs.version-check.outputs.should_release == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            sidecar-target: x86_64-pc-windows-msvc
+          - platform: macos-latest
+            sidecar-target: x86_64-apple-darwin
+          - platform: ubuntu-22.04
+            sidecar-target: x86_64-unknown-linux-gnu
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Node ────────────────────────────────────────────────────────────────
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      # ── Rust ────────────────────────────────────────────────────────────────
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      # ── Python ──────────────────────────────────────────────────────────────
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          pip install pyinstaller
+          pip install -r requirements.txt
+          if [ "${{ matrix.platform }}" = "windows-latest" ]; then
+            pip install webrtcvad-wheels
+          else
+            pip install webrtcvad
+          fi
+
+      # ── Linux system deps ───────────────────────────────────────────────────
+      - name: Install Linux system dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            build-essential \
+            portaudio19-dev
+
+      # ── Build Python sidecar ────────────────────────────────────────────────
+      - name: Build sidecar (Windows)
+        if: matrix.platform == 'windows-latest'
+        shell: pwsh
+        run: |
+          pyinstaller syncspeaker-sidecar-x86_64-pc-windows-gnu.spec --distpath dist-py
+          New-Item -ItemType Directory -Force src-tauri/binaries | Out-Null
+          Copy-Item "dist-py/syncspeaker-sidecar-x86_64-pc-windows-gnu.exe" `
+            "src-tauri/binaries/syncspeaker-sidecar-${{ matrix.sidecar-target }}.exe"
+
+      - name: Build sidecar (macOS / Linux)
+        if: matrix.platform != 'windows-latest'
+        run: |
+          pyinstaller \
+            --onefile \
+            --name "syncspeaker-sidecar-${{ matrix.sidecar-target }}" \
+            --hidden-import groq \
+            --hidden-import groq._client \
+            --hidden-import groq.resources \
+            --hidden-import httpx \
+            --hidden-import anyio \
+            --distpath dist-py \
+            python/sidecar_main.py
+          mkdir -p src-tauri/binaries
+          cp "dist-py/syncspeaker-sidecar-${{ matrix.sidecar-target }}" \
+             "src-tauri/binaries/syncspeaker-sidecar-${{ matrix.sidecar-target }}"
+          chmod +x "src-tauri/binaries/syncspeaker-sidecar-${{ matrix.sidecar-target }}"
+
+      # ── Build Tauri + publish release ───────────────────────────────────────
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v${{ needs.version-check.outputs.version }}
+          releaseName: 'SyncSpeak v${{ needs.version-check.outputs.version }}'
+          releaseBody: |
+            See [CHANGELOG.md](https://github.com/Soumyadipgithub/SyncSpeak/blob/main/CHANGELOG.md) for what's new.
+          releaseDraft: false
+          prerelease: false
