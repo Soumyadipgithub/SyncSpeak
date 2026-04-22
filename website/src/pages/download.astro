@@ -34,14 +34,39 @@ const fmt = (bytes: number) => {
   return `${bytes} B`;
 };
 
-const platformOf = (name: string) => {
-  if (/\.(exe|msi)$/i.test(name)) return { label: 'Windows', icon: 'window' as const };
-  if (/\.(dmg|pkg)$/i.test(name)) return { label: 'macOS', icon: 'laptop' as const };
-  if (/\.AppImage$/i.test(name)) return { label: 'Linux (AppImage)', icon: 'terminal' as const };
-  if (/\.deb$/i.test(name)) return { label: 'Linux (Debian)', icon: 'terminal' as const };
-  if (/\.rpm$/i.test(name)) return { label: 'Linux (RPM)', icon: 'terminal' as const };
-  return { label: 'Other', icon: 'package' as const };
-};
+// Human-friendly asset metadata — keyed by filename pattern.
+// Order matters: first match wins within each platform group.
+type AssetMeta = { label: string; desc: string; icon: 'window' | 'laptop' | 'terminal' };
+
+const assetMap: { re: RegExp; meta: AssetMeta; platform: string }[] = [
+  // Windows
+  { re: /setup\.exe$/i,     meta: { label: 'Windows Installer', desc: '.exe — recommended for most users', icon: 'window' }, platform: 'Windows' },
+  { re: /\.msi$/i,          meta: { label: 'Windows MSI',       desc: '.msi — for IT / group policy deployment', icon: 'window' }, platform: 'Windows' },
+  // macOS
+  { re: /aarch64\.dmg$/i,   meta: { label: 'macOS (Apple Silicon)',  desc: '.dmg — for M1, M2, M3, M4 Macs', icon: 'laptop' }, platform: 'macOS' },
+  { re: /x64\.dmg$/i,       meta: { label: 'macOS (Intel)',          desc: '.dmg — for older Intel-based Macs', icon: 'laptop' }, platform: 'macOS' },
+  // Linux
+  { re: /\.AppImage$/i,     meta: { label: 'Linux AppImage',    desc: '.AppImage — runs on any distro', icon: 'terminal' }, platform: 'Linux' },
+  { re: /\.deb$/i,          meta: { label: 'Linux Debian/Ubuntu', desc: '.deb — for apt-based distros', icon: 'terminal' }, platform: 'Linux' },
+];
+
+// Build display list: match each release asset to its metadata, skip source archives
+const displayAssets = release
+  ? release.assets
+      .map((a) => {
+        const match = assetMap.find((m) => m.re.test(a.name));
+        if (!match) return null; // skip source code zips, unknown files
+        return { ...a, ...match.meta, platform: match.platform };
+      })
+      .filter(Boolean) as (Asset & AssetMeta & { platform: string })[]
+  : [];
+
+// Group by platform for visual sections
+const platforms = ['Windows', 'macOS', 'Linux'] as const;
+const grouped = platforms.map((p) => ({
+  name: p,
+  assets: displayAssets.filter((a) => a.platform === p),
+}));
 
 const published = release ? new Date(release.published_at).toLocaleDateString() : null;
 ---
@@ -68,26 +93,33 @@ const published = release ? new Date(release.published_at).toLocaleDateString() 
 
     <section class="all-assets" aria-label="All available builds">
       <h2>All builds</h2>
+      <p class="builds-hint">
+        Not sure which to pick? Click the big button above — it auto-detects your system.
+      </p>
       {
-        release ? (
-          <ul class="assets" role="list">
-            {release.assets.map((a) => {
-              const p = platformOf(a.name);
-              return (
-                <li class="glass-card asset">
-                  <span class="asset-icon"><Icon name={p.icon} size={20} /></span>
-                  <div class="asset-meta">
-                    <span class="asset-platform">{p.label}</span>
-                    <code class="asset-name">{a.name}</code>
-                  </div>
-                  <span class="asset-size">{fmt(a.size)}</span>
-                  <a href={a.browser_download_url} class="ghost-btn asset-dl">
-                    Download
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
+        release && displayAssets.length > 0 ? (
+          <div class="platform-groups">
+            {grouped.filter((g) => g.assets.length > 0).map((g) => (
+              <div class="platform-group">
+                <h3 class="platform-heading">{g.name}</h3>
+                <ul class="assets" role="list">
+                  {g.assets.map((a) => (
+                    <li class="glass-card asset">
+                      <span class="asset-icon"><Icon name={a.icon} size={20} /></span>
+                      <div class="asset-meta">
+                        <span class="asset-platform">{a.label}</span>
+                        <span class="asset-desc">{a.desc}</span>
+                      </div>
+                      <span class="asset-size">{fmt(a.size)}</span>
+                      <a href={a.browser_download_url} class="ghost-btn asset-dl">
+                        Download
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         ) : (
           <div class="glass-card empty">
             <p>
@@ -143,9 +175,28 @@ npm run dev</code></pre>
     justify-content: center;
   }
   .release-meta { font-size: 0.875rem; color: var(--vibrant-secondary); }
+  .builds-hint {
+    font-size: 0.9375rem;
+    color: var(--vibrant-secondary);
+    margin-bottom: var(--space-xl);
+  }
 
   .all-assets { margin-bottom: var(--space-2xl); }
-  .all-assets h2 { margin-bottom: var(--space-l); }
+  .all-assets h2 { margin-bottom: var(--space-s); }
+
+  .platform-groups {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+  .platform-heading {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--vibrant-primary);
+    margin-bottom: var(--space-m);
+    padding-left: var(--space-xs);
+  }
+
   .assets {
     list-style: none;
     display: grid;
@@ -170,7 +221,12 @@ npm run dev</code></pre>
     color: var(--vibrant-primary);
   }
   .asset-platform { font-weight: 600; display: block; }
-  .asset-name { font-size: 0.8125rem; color: var(--vibrant-secondary); }
+  .asset-desc {
+    font-size: 0.8125rem;
+    color: var(--vibrant-secondary);
+    display: block;
+    margin-top: 2px;
+  }
   .asset-size {
     font-family: var(--font-mono);
     font-size: 0.8125rem;
