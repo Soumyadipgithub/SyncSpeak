@@ -5,6 +5,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [3.0.3] — 2026-04-22
+
+### Fixed
+- **Branding** — Fixed an issue where the Windows installer and taskbar displayed the application name as "SyncSpeak" instead of the official "Sync Speak" (with a space).
+
 ## [3.0.2] — 2026-04-22
 
 ### Changed
