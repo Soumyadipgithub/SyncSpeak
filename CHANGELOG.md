@@ -5,6 +5,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [3.0.4] — 2026-04-23
+
+### Changed
+- **Architecture** — Established a single source of truth for the application name and version. The version is now exclusively managed in `package.json`, and changes automatically propagate to Tauri, Cargo, and the Astro website via the `sync-version.mjs` build script.
+
 ## [3.0.3] — 2026-04-22
 
 ### Fixed
