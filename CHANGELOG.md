@@ -5,6 +5,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [3.0.6] — 2026-04-23
+
+### Added
+- **Security hardening** — Implemented a strict Content Security Policy (CSP) in `tauri.conf.json`. This defense-in-depth measure isolates the frontend from the open internet, preventing XSS-based data exfiltration.
+
 ## [3.0.5] — 2026-04-23
 
 ### Added
