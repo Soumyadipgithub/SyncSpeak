@@ -1,40 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { check, Update } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
 
+type UpdateStatus = 'idle' | 'checking' | 'downloading' | 'ready' | 'error';
+
 export function useUpdater() {
   const [updateAvailable, setUpdateAvailable] = useState<Update | null>(null);
-  const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'downloading' | 'ready' | 'error'>('idle');
-  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [updateStatus, setUpdateStatus] = useState<UpdateStatus>('idle');
+  
+  const statusRef = useRef<UpdateStatus>('idle');
+  const isCheckingRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    statusRef.current = updateStatus;
+  }, [updateStatus]);
 
   useEffect(() => {
     async function checkForUpdates() {
+      if (isCheckingRef.current) return;
+      if (statusRef.current === 'ready' || statusRef.current === 'downloading') return;
+
       try {
+        isCheckingRef.current = true;
         setUpdateStatus('checking');
         const update = await check();
         if (update) {
           setUpdateAvailable(update);
           setUpdateStatus('downloading');
           
-          let downloaded = 0;
-          let contentLength = 0;
-          
-          await update.downloadAndInstall((event) => {
-            switch (event.event) {
-              case 'Started':
-                contentLength = event.data.contentLength || 0;
-                break;
-              case 'Progress':
-                downloaded += event.data.chunkLength;
-                if (contentLength > 0) {
-                  setDownloadProgress(Math.round((downloaded / contentLength) * 100));
-                }
-                break;
-              case 'Finished':
-                setDownloadProgress(100);
-                break;
-            }
-          });
+          await update.downloadAndInstall();
           
           setUpdateStatus('ready');
         } else {
@@ -43,6 +37,14 @@ export function useUpdater() {
       } catch (err) {
         console.error('Failed to check for updates', err);
         setUpdateStatus('error');
+        // Reset to idle after a while so it can retry in the future
+        setTimeout(() => {
+          if (statusRef.current === 'error') {
+            setUpdateStatus('idle');
+          }
+        }, 10000);
+      } finally {
+        isCheckingRef.current = false;
       }
     }
 
@@ -63,5 +65,5 @@ export function useUpdater() {
     await relaunch();
   };
 
-  return { updateAvailable, updateStatus, downloadProgress, handleRestart };
+  return { updateAvailable, updateStatus, handleRestart };
 }
