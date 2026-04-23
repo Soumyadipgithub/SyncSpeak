@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Sync Speak",
-  "version": "3.0.3",
+  "version": "../package.json",
   "identifier": "com.syncspeak.app",
   "build": {
     "beforeDevCommand": "npx vite",

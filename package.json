@@ -1,9 +1,14 @@
 {
   "name": "syncspeak",
-  "version": "3.0.3",
+  "version": "3.0.4",
+  "productName": "Sync Speak",
   "description": "Real-time Hindi to English voice translator for meetings",
+  "homepage": "https://github.com/Soumyadipgithub/SyncSpeak",
   "main": "out/main/index.js",
   "scripts": {
+    "sync:version": "node scripts/sync-version.mjs",
+    "predev": "node scripts/sync-version.mjs",
+    "prebuild": "node scripts/sync-version.mjs",
     "dev": "tauri dev",
     "build": "vite build && tauri build",
     "tauri": "tauri",

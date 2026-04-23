@@ -152,15 +152,21 @@ Read `CONTRIBUTING.md` for the full guide. The rules below are the minimum an ag
 | `develop` → `main` | `release.md` | `release: vX.Y.Z — short theme` |
 | `main` → `develop` | `syncback.md` | `chore: sync main → develop` |
 
-### Version bump — all 5 files must match
+### Version bump — edit one file
 
-When bumping the version for a release, update **all** of these:
+`package.json` is the single source of truth for the app version, product name, and homepage URL. Bumping a version means editing exactly two files:
 
 1. `package.json` → `version`
-2. `src-tauri/tauri.conf.json` → `version`
-3. `src-tauri/Cargo.toml` → `version`
-4. `website/src/pages/index.astro` → `softwareVersion`
-5. `CHANGELOG.md` → new section at top
+2. `CHANGELOG.md` → new section at top
+
+Everything else propagates automatically:
+
+- `src-tauri/tauri.conf.json` reads version from `../package.json` (Tauri v2 native resolution).
+- `src-tauri/Cargo.toml` is rewritten by `scripts/sync-version.mjs`, which runs as the `predev` / `prebuild` npm hook.
+- `src/renderer/constants.ts` and `website/src/pages/index.astro` import `package.json` directly.
+- The release workflow reads `package.json` via `jq`.
+
+Do NOT hand-edit versions in those files — the next `npm run dev` or `npm run build` will overwrite your change. If you need to resync manually, run `npm run sync:version`.
 
 ### Never
 
