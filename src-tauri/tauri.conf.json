@@ -47,6 +47,12 @@
     }
   },
   "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/Soumyadipgithub/SyncSpeak/releases/latest/download/updater.json"
+      ],
+      "pubkey": "YOUR_UPDATER_SIGNATURE_PUBKEY"
+    },
     "shell": {}
   }
 }
