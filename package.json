@@ -1,6 +1,6 @@
 {
   "name": "syncspeak",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "productName": "Sync Speak",
   "description": "Real-time Hindi to English voice translator for meetings",
   "homepage": "https://github.com/Soumyadipgithub/SyncSpeak",
@@ -18,7 +18,9 @@
     "@fluentui/react-components": "^9.x",
     "@fluentui/react-icons": "^2.x",
     "@tauri-apps/api": "^2.10.1",
+    "@tauri-apps/plugin-process": "^2.3.1",
     "@tauri-apps/plugin-shell": "^2.3.5",
+    "@tauri-apps/plugin-updater": "^2.10.1",
     "framer-motion": "^12.x",
     "react": "^19.x",
     "react-dom": "^19.x",

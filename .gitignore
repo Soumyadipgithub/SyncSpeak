@@ -43,3 +43,6 @@ python/test_tts_output.txt
 .env
 *.env
 **/.env
+
+# Keys
+/src-tauri/updater_key
