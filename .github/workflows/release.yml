@@ -22,12 +22,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Compare tauri.conf.json version with latest release
+      - name: Compare package.json version with latest release
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          APP_VERSION=$(jq -r '.version' src-tauri/tauri.conf.json)
+          APP_VERSION=$(jq -r '.version' package.json)
           echo "App version: $APP_VERSION"
 
           LATEST_TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName' 2>/dev/null || echo "")

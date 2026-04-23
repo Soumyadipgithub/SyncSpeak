@@ -1,7 +1,7 @@
-/**
- * Single Source of Truth for Sync Speak branding and versioning.
- * Changing values here will update the entire application.
- */
-export const APP_NAME = 'Sync Speak';
-export const APP_VERSION = '3.0.3';
-export const GITHUB_URL = 'https://github.com/Soumyadipgithub/SyncSpeak';
+// Single Source of Truth for Sync Speak branding and versioning.
+// All values are read from the root package.json — edit them there, not here.
+import pkg from '../../package.json'
+
+export const APP_NAME = pkg.productName
+export const APP_VERSION = pkg.version
+export const GITHUB_URL = pkg.homepage

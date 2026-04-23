@@ -4,15 +4,16 @@ import HeroTerminal from '../components/HeroTerminal.astro';
 import DownloadButton from '../components/DownloadButton.astro';
 import Icon from '../components/Icon.astro';
 import AppShowcase from '../components/AppShowcase.astro';
+import appPkg from '../../../package.json';
 
-const title = 'Sync Speak — Real-time Hindi to English for meetings';
+const title = `${appPkg.productName} — Real-time Hindi to English for meetings`;
 const description =
   'A desktop app that translates your Hindi voice into English in real time for Google Meet, Zoom, and Teams. Local, open-source, neural VAD, 5-utterance context, sentence-pipelined TTS.';
 
 const softwareJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'Sync Speak',
+  name: appPkg.productName,
   operatingSystem: 'Windows, macOS, Linux',
   applicationCategory: 'CommunicationApplication',
   applicationSubCategory: 'Translation',
@@ -24,8 +25,8 @@ const softwareJsonLd = {
   },
   description,
   url: 'https://syncspeak.soumg.workers.dev',
-  downloadUrl: 'https://github.com/Soumyadipgithub/SyncSpeak/releases/latest',
-  softwareVersion: '3.0.3',
+  downloadUrl: `${appPkg.homepage}/releases/latest`,
+  softwareVersion: appPkg.version,
   license: 'https://opensource.org/licenses/MIT',
 };
 ---
