@@ -5,6 +5,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [3.0.5] — 2026-04-23
+
+### Added
+- **Auto Updater** — Implemented a silent background auto-updater using Tauri plugins (`tauri-plugin-updater` and `tauri-plugin-process`). Updates are checked and downloaded in the background. Once an update is ready, a seamless "Liquid Glass" restart prompt appears in the bottom right corner without interrupting active translation.
+
 ## [3.0.4] — 2026-04-23
 
 ### Changed
