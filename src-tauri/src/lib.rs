@@ -1,12 +1,12 @@
-use tauri::{Manager, Emitter};
-use tauri::window::Color;
-use tauri_plugin_shell::ShellExt;
-use tauri_plugin_shell::process::CommandEvent;
-use std::sync::Mutex;
 use serde_json::Value;
 use std::fs::OpenOptions;
-use std::io::{Write, BufRead, BufReader};
+use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
+use std::sync::Mutex;
+use tauri::window::Color;
+use tauri::{Emitter, Manager};
+use tauri_plugin_shell::process::CommandEvent;
+use tauri_plugin_shell::ShellExt;
 
 // Store sidecar child handle for cleanup
 struct SidecarState {
@@ -14,10 +14,14 @@ struct SidecarState {
 }
 
 #[tauri::command]
-async fn send_sidecar_command(state: tauri::State<'_, SidecarState>, cmd: String) -> Result<(), String> {
+async fn send_sidecar_command(
+    state: tauri::State<'_, SidecarState>,
+    cmd: String,
+) -> Result<(), String> {
     let mut child_lock = state.child.lock().unwrap();
     if let Some(child) = child_lock.as_mut() {
-        child.write(format!("{}\n", cmd).as_bytes())
+        child
+            .write(format!("{}\n", cmd).as_bytes())
             .map_err(|e| e.to_string())?;
         Ok(())
     } else {
@@ -26,7 +30,13 @@ async fn send_sidecar_command(state: tauri::State<'_, SidecarState>, cmd: String
 }
 
 #[tauri::command]
-fn save_history_entry(app: tauri::AppHandle, session_id: String, hindi: String, english: String, timestamp: String) -> Result<(), String> {
+fn save_history_entry(
+    app: tauri::AppHandle,
+    session_id: String,
+    hindi: String,
+    english: String,
+    timestamp: String,
+) -> Result<(), String> {
     log::debug!("Saving history entry for session: {}", session_id);
     let data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
     std::fs::create_dir_all(&data_dir).map_err(|e| e.to_string())?;
@@ -61,11 +71,11 @@ fn get_history(app: tauri::AppHandle) -> Result<Vec<Value>, String> {
         log::debug!("History file does not exist at {:?}", file_path);
         return Ok(vec![]);
     }
-    
+
     let file = std::fs::File::open(file_path).map_err(|e| e.to_string())?;
     let reader = BufReader::new(file);
     let mut entries = vec![];
-    
+
     for line in reader.lines() {
         if let Ok(l) = line {
             if let Ok(json) = serde_json::from_str::<Value>(&l) {
@@ -101,7 +111,7 @@ fn save_config(app: tauri::AppHandle, key: String, value: String) -> Result<(), 
     };
 
     config[key] = serde_json::json!(value);
-    
+
     let file = std::fs::File::create(&file_path).map_err(|e| e.to_string())?;
     serde_json::to_writer_pretty(file, &config).map_err(|e| e.to_string())?;
     Ok(())
@@ -114,11 +124,14 @@ fn get_config(app: tauri::AppHandle, key: String) -> Result<Option<String>, Stri
     if !file_path.exists() {
         return Ok(None);
     }
-    
+
     let file = std::fs::File::open(file_path).map_err(|e| e.to_string())?;
     let config: Value = serde_json::from_reader(file).map_err(|e| e.to_string())?;
-    
-    Ok(config.get(key).and_then(|v| v.as_str()).map(|s| s.to_string()))
+
+    Ok(config
+        .get(key)
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string()))
 }
 
 fn find_venv_python() -> PathBuf {
@@ -153,7 +166,10 @@ fn find_sidecar_script() -> PathBuf {
 }
 
 #[tauri::command]
-async fn restart_sidecar(app: tauri::AppHandle, state: tauri::State<'_, SidecarState>) -> Result<(), String> {
+async fn restart_sidecar(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, SidecarState>,
+) -> Result<(), String> {
     // 1. Kill the old child process
     {
         let mut child_lock = state.child.lock().unwrap();
@@ -214,9 +230,13 @@ async fn restart_sidecar(app: tauri::AppHandle, state: tauri::State<'_, SidecarS
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_log::Builder::default().build())
-        .manage(SidecarState { child: Mutex::new(None) })
+        .manage(SidecarState {
+            child: Mutex::new(None),
+        })
         .setup(|app| {
             let app_handle = app.handle().clone();
             let state = app.state::<SidecarState>();
@@ -296,7 +316,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            send_sidecar_command, 
+            send_sidecar_command,
             restart_sidecar,
             save_history_entry,
             get_history,

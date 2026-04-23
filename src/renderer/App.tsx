@@ -9,6 +9,7 @@ import GuidePage from './pages/GuidePage'
 import { useAppStore } from './store/appStore'
 import { useSidecar } from './hooks/useSidecar'
 import SettingsModal from './modals/SettingsModal'
+import UpdatePrompt from './components/UpdatePrompt'
 import './App.css'
 
 type TabName = 'translate' | 'history' | 'guide' | 'voices'
@@ -36,6 +37,7 @@ export default function App() {
       </div>
 
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      <UpdatePrompt />
     </div>
   )
 }
