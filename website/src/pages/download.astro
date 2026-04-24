@@ -6,69 +6,6 @@ import Icon from '../components/Icon.astro';
 const title = 'Download Sync Speak';
 const description =
   'Download the latest Sync Speak build for Windows, macOS, or Linux. Free, open-source, no account required.';
-
-type Asset = { name: string; size: number; browser_download_url: string };
-type Release = {
-  tag_name: string;
-  name: string;
-  html_url: string;
-  published_at: string;
-  body: string;
-  assets: Asset[];
-};
-
-let release: Release | null = null;
-try {
-  const res = await fetch(
-    'https://api.github.com/repos/Soumyadipgithub/SyncSpeak/releases/latest',
-    { headers: { Accept: 'application/vnd.github+json' } }
-  );
-  if (res.ok) release = (await res.json()) as Release;
-} catch {
-  release = null;
-}
-
-const fmt = (bytes: number) => {
-  if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${bytes} B`;
-};
-
-// Human-friendly asset metadata — keyed by filename pattern.
-// Order matters: first match wins within each platform group.
-type AssetMeta = { label: string; desc: string; icon: 'window' | 'laptop' | 'terminal' };
-
-const assetMap: { re: RegExp; meta: AssetMeta; platform: string }[] = [
-  // Windows
-  { re: /setup\.exe$/i,     meta: { label: 'Windows Installer', desc: '.exe — recommended for most users', icon: 'window' }, platform: 'Windows' },
-  { re: /\.msi$/i,          meta: { label: 'Windows MSI',       desc: '.msi — for IT / group policy deployment', icon: 'window' }, platform: 'Windows' },
-  // macOS
-  { re: /aarch64\.dmg$/i,   meta: { label: 'macOS (Apple Silicon)',  desc: '.dmg — for M1, M2, M3, M4 Macs', icon: 'laptop' }, platform: 'macOS' },
-  { re: /x64\.dmg$/i,       meta: { label: 'macOS (Intel)',          desc: '.dmg — for older Intel-based Macs', icon: 'laptop' }, platform: 'macOS' },
-  // Linux
-  { re: /\.AppImage$/i,     meta: { label: 'Linux AppImage',    desc: '.AppImage — runs on any distro', icon: 'terminal' }, platform: 'Linux' },
-  { re: /\.deb$/i,          meta: { label: 'Linux Debian/Ubuntu', desc: '.deb — for apt-based distros', icon: 'terminal' }, platform: 'Linux' },
-];
-
-// Build display list: match each release asset to its metadata, skip source archives
-const displayAssets = release
-  ? release.assets
-      .map((a) => {
-        const match = assetMap.find((m) => m.re.test(a.name));
-        if (!match) return null; // skip source code zips, unknown files
-        return { ...a, ...match.meta, platform: match.platform };
-      })
-      .filter(Boolean) as (Asset & AssetMeta & { platform: string })[]
-  : [];
-
-// Group by platform for visual sections
-const platforms = ['Windows', 'macOS', 'Linux'] as const;
-const grouped = platforms.map((p) => ({
-  name: p,
-  assets: displayAssets.filter((a) => a.platform === p),
-}));
-
-const published = release ? new Date(release.published_at).toLocaleDateString() : null;
 ---
 
 <BaseLayout title={title} description={description}>
@@ -82,13 +19,7 @@ const published = release ? new Date(release.published_at).toLocaleDateString() 
       <div class="primary-cta">
         <DownloadButton label="Download for" />
       </div>
-      {
-        release && (
-          <p class="release-meta">
-            Latest: <code>{release.tag_name}</code> · released {published}
-          </p>
-        )
-      }
+      <p id="release-meta-container" class="release-meta"></p>
     </header>
 
     <section class="all-assets" aria-label="All available builds">
@@ -96,40 +27,134 @@ const published = release ? new Date(release.published_at).toLocaleDateString() 
       <p class="builds-hint">
         Not sure which to pick? Click the big button above — it auto-detects your system.
       </p>
-      {
-        release && displayAssets.length > 0 ? (
-          <div class="platform-groups">
-            {grouped.filter((g) => g.assets.length > 0).map((g) => (
-              <div class="platform-group">
-                <h3 class="platform-heading">{g.name}</h3>
-                <ul class="assets" role="list">
-                  {g.assets.map((a) => (
-                    <li class="glass-card asset">
-                      <span class="asset-icon"><Icon name={a.icon} size={20} /></span>
-                      <div class="asset-meta">
-                        <span class="asset-platform">{a.label}</span>
-                        <span class="asset-desc">{a.desc}</span>
-                      </div>
-                      <span class="asset-size">{fmt(a.size)}</span>
-                      <a href={a.browser_download_url} class="ghost-btn asset-dl">
-                        Download
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div class="glass-card empty">
-            <p>
-              No releases published yet. Track the first release on
-              <a href="https://github.com/Soumyadipgithub/SyncSpeak/releases" target="_blank" rel="noopener">GitHub</a>.
-            </p>
-          </div>
-        )
-      }
+
+      <div id="builds-container">
+        <div class="glass-card empty shimmer-container">
+          <p>Fetching latest builds from GitHub...</p>
+        </div>
+      </div>
     </section>
+
+    <template id="platform-group-template">
+      <div class="platform-group">
+        <h3 class="platform-heading"></h3>
+        <ul class="assets" role="list"></ul>
+      </div>
+    </template>
+
+    <template id="asset-item-template">
+      <li class="glass-card asset">
+        <span class="asset-icon"></span>
+        <div class="asset-meta">
+          <span class="asset-platform"></span>
+          <span class="asset-desc"></span>
+        </div>
+        <span class="asset-size"></span>
+        <a href="#" class="ghost-btn asset-dl">Download</a>
+      </li>
+    </template>
+
+    <script>
+      type Asset = { name: string; size: number; browser_download_url: string };
+      type Release = {
+        tag_name: string;
+        name: string;
+        html_url: string;
+        published_at: string;
+        body: string;
+        assets: Asset[];
+      };
+
+      const fmt = (bytes: number) => {
+        if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+        if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${bytes} B`;
+      };
+
+      const assetMap = [
+        { re: /setup\.exe$/i,     label: 'Windows Installer', desc: '.exe — recommended for most users', icon: 'window', platform: 'Windows' },
+        { re: /\.msi$/i,          label: 'Windows MSI',       desc: '.msi — for IT / group policy deployment', icon: 'window', platform: 'Windows' },
+        { re: /aarch64\.dmg$/i,   label: 'macOS (Apple Silicon)',  desc: '.dmg — for M1, M2, M3, M4 Macs', icon: 'laptop', platform: 'macOS' },
+        { re: /x64\.dmg$/i,       label: 'macOS (Intel)',          desc: '.dmg — for older Intel-based Macs', icon: 'laptop', platform: 'macOS' },
+        { re: /\.AppImage$/i,     label: 'Linux AppImage',    desc: '.AppImage — runs on any distro', icon: 'terminal', platform: 'Linux' },
+        { re: /\.deb$/i,          label: 'Linux Debian/Ubuntu', desc: '.deb — for apt-based distros', icon: 'terminal', platform: 'Linux' },
+      ];
+
+      async function init() {
+        const buildsContainer = document.getElementById('builds-container');
+        const metaContainer = document.getElementById('release-meta-container');
+        if (!buildsContainer) return;
+
+        try {
+          const res = await fetch('https://api.github.com/repos/Soumyadipgithub/SyncSpeak/releases/latest');
+          if (!res.ok) throw new Error('Failed to fetch');
+          const release = (await res.json()) as Release;
+
+          if (metaContainer) {
+            const date = new Date(release.published_at).toLocaleDateString();
+            metaContainer.innerHTML = `Latest: <code>${release.tag_name}</code> · released ${date}`;
+          }
+
+          const displayAssets = release.assets
+            .map((a) => {
+              const match = assetMap.find((m) => m.re.test(a.name));
+              if (!match) return null;
+              return { ...a, ...match };
+            })
+            .filter(Boolean) as (Asset & typeof assetMap[0])[];
+
+          if (displayAssets.length === 0) throw new Error('No compatible assets');
+
+          buildsContainer.innerHTML = '<div class="platform-groups"></div>';
+          const groupsWrapper = buildsContainer.querySelector('.platform-groups')!;
+          const groupTemplate = document.getElementById('platform-group-template') as HTMLTemplateElement;
+          const assetTemplate = document.getElementById('asset-item-template') as HTMLTemplateElement;
+
+          const platforms = ['Windows', 'macOS', 'Linux'] as const;
+          platforms.forEach((p) => {
+            const assets = displayAssets.filter((a) => a.platform === p);
+            if (assets.length === 0) return;
+
+            const groupClone = groupTemplate.content.cloneNode(true) as DocumentFragment;
+            groupClone.querySelector('.platform-heading')!.textContent = p;
+            const list = groupClone.querySelector('.assets')!;
+
+            assets.forEach((a) => {
+              const assetClone = assetTemplate.content.cloneNode(true) as DocumentFragment;
+              
+              // Icon selection logic (mapping string to SVG or keeping it simple)
+              const iconContainer = assetClone.querySelector('.asset-icon')!;
+              const iconMap: Record<string, string> = {
+                window: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>',
+                laptop: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12"/><path d="M2 20h20"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>',
+                terminal: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>'
+              };
+              iconContainer.innerHTML = iconMap[a.icon] || '';
+
+              assetClone.querySelector('.asset-platform')!.textContent = a.label;
+              assetClone.querySelector('.asset-desc')!.textContent = a.desc;
+              assetClone.querySelector('.asset-size')!.textContent = fmt(a.size);
+              (assetClone.querySelector('.asset-dl') as HTMLAnchorElement).href = a.browser_download_url;
+              
+              list.appendChild(assetClone);
+            });
+
+            groupsWrapper.appendChild(groupClone);
+          });
+        } catch (e) {
+          buildsContainer.innerHTML = `
+            <div class="glass-card empty">
+              <p>
+                No releases published yet. Track the first release on
+                <a href="https://github.com/Soumyadipgithub/SyncSpeak/releases" target="_blank" rel="noopener">GitHub</a>.
+              </p>
+            </div>
+          `;
+        }
+      }
+
+      init();
+    </script>
 
     <section class="trusted-guide glass-card">
       <div class="guide-content">
@@ -204,19 +229,37 @@ npm run dev</code></pre>
   }
 
   .all-assets { margin-bottom: var(--space-2xl); }
-  .all-assets h2 { margin-bottom: var(--space-s); }
-
-  .platform-groups {
+  /* Custom responsive spacing as requested */
+  :global(.platform-groups) {
     display: flex;
     flex-direction: column;
-    gap: var(--space-xl);
+    gap: clamp(8px, -4vw + 32px, 50px) !important; /* Mobile */
+    margin-top: var(--space-xl);
   }
-  .platform-heading {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--vibrant-primary);
+
+  @media (min-width: 641px) {
+    :global(.platform-groups) {
+      gap: clamp(23px, -1vw + 32px, 50px) !important; /* Desktop */
+    }
+  }
+
+  :global(.platform-heading) {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent-blue);
     margin-bottom: var(--space-m);
-    padding-left: var(--space-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+    opacity: 0.8;
+  }
+  .platform-heading::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-blue), transparent);
   }
 
   .assets {
