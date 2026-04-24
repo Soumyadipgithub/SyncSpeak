@@ -108,13 +108,44 @@ const classes = [
     fallback: 'your platform',
   };
 
-  document.querySelectorAll<HTMLAnchorElement>('.dl-btn').forEach((btn) => {
+  document.querySelectorAll<HTMLAnchorElement>('.dl-btn').forEach(async (btn) => {
     const plat = detect();
-    const url = btn.dataset[`url${plat.charAt(0).toUpperCase()}${plat.slice(1)}` as 'urlWindows' | 'urlMac' | 'urlLinux' | 'urlFallback'];
-    if (url) btn.href = url;
-    const labelEl = btn.querySelector<HTMLSpanElement>('.dl-label');
     const prefix = btn.dataset.labelPrefix ?? 'Download for';
+    const labelEl = btn.querySelector<HTMLSpanElement>('.dl-label');
+    const versionEl = btn.querySelector<HTMLSpanElement>('.dl-version');
+
     if (labelEl) labelEl.textContent = `${prefix} ${labels[plat]}`;
+
+    // If the button is currently pointing to a fallback (or if we want to ensure freshness),
+    // we can fetch the latest release directly on the client.
+    try {
+      const res = await fetch('https://api.github.com/repos/Soumyadipgithub/SyncSpeak/releases/latest');
+      if (res.ok) {
+        const rel = await res.json();
+        const findUrl = (patterns: RegExp[]) => {
+          for (const re of patterns) {
+            const hit = rel.assets.find((a: any) => re.test(a.name));
+            if (hit) return hit.browser_download_url;
+          }
+          return rel.html_url;
+        };
+
+        const freshUrls = {
+          windows: findUrl([/setup\.exe$/i, /\.exe$/i, /\.msi$/i]),
+          mac: findUrl([/x64\.dmg$/i, /aarch64\.dmg$/i, /\.dmg$/i]),
+          linux: findUrl([/\.AppImage$/i, /\.deb$/i, /\.rpm$/i]),
+          fallback: rel.html_url
+        };
+
+        const newUrl = freshUrls[plat];
+        if (newUrl) btn.href = newUrl;
+        if (versionEl) versionEl.textContent = rel.tag_name;
+      }
+    } catch (e) {
+      // Fall back to the build-time data-urls already in the HTML
+      const url = btn.dataset[`url${plat.charAt(0).toUpperCase()}${plat.slice(1)}` as 'urlWindows' | 'urlMac' | 'urlLinux' | 'urlFallback'];
+      if (url) btn.href = url;
+    }
   });
 </script>
 
